@@ -11,7 +11,7 @@ async function queueJob() {
             encoding: 'utf-8'
         }
     );
-    let job = await workQueue.add({sortedPackagesToCreate: stdout})
+    let job = await workQueue.add('kickoff', {sortedPackagesToCreate: stdout});
     return job.id;
 }
 

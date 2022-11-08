@@ -3,6 +3,24 @@ const exec = util.promisify(require('child_process').exec);
 
 const { fatal } = require('./error.js');
 
+async function authorize() {
+    let stderr;
+
+    ({_, stderr} = await exec(
+        `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRIPTION_KEY} -iv ${DECRYPTION_IV}`
+    ));
+    if(stderr) {
+        fatal('authorize()', stderr);
+    }
+
+    ({_, stderr} = await exec(
+        `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS`
+    ))
+    if(stderr) {
+        fatal('authorize()', stderr);
+    }
+}
+
 async function getRemainingPackageNumber() {
     const {stdout, stderr} = await exec(`sfdx force:limits:api:display -u ${process.env.HUB_ALIAS} --json`);
     if(stderr) {
@@ -13,4 +31,7 @@ async function getRemainingPackageNumber() {
     return remainingPackageNumber;
 }
 
-module.exports = getRemainingPackageNumber;
+module.exports = {
+    authorize,
+    getRemainingPackageNumber
+};

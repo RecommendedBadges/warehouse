@@ -1,4 +1,5 @@
 node_modules
-test.js
+packageCreationOutput.json
 packagesToUpdate.txt
-pullRequestExample.json
+sfdx-project.json
+server.js

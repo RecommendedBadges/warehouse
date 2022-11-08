@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const { fatal, makeRequest } = require('../util');
+const { fatal, callout } = require('../util');
 const { queueJob } = require('../services');
 
 const CIRCLECI = 'circleci';
@@ -34,13 +34,13 @@ function validateRequest(req) {
 }
 
 async function getLastPipelineID() {
-    let data = await makeRequest(CIRCLECI, `${process.env.PROJECT_SLUG}/pipeline`)
+    let data = await callout.get(CIRCLECI, `${process.env.PROJECT_SLUG}/pipeline`)
     return data.items[0].id;
 }
 
 async function getLastBuildWorkflowID(pipelineID) {
     let workflowID;
-    let data = await makeRequest(CIRCLECI, `/pipeline/${pipelineID}/workflow`);
+    let data = await callout.get(CIRCLECI, `/pipeline/${pipelineID}/workflow`);
     for(let workflow of data.items) {
         if(workflow.name === process.env.WORKFLOW_NAME) {
             workflowID = workflow.id;
@@ -50,10 +50,10 @@ async function getLastBuildWorkflowID(pipelineID) {
 }
 
 async function getLastJobArtifacts(workflowID) {
-    let data = await makeRequest(CIRCLECI, `/workflow/${workflowID}/job`);
+    let data = await callout.get(CIRCLECI, `/workflow/${workflowID}/job`);
     let projectSlug = data.items[0].project_slug;
     let lastJobNumber = data.items[0].job_number;
-    data = await makeRequest(CIRCLECI, `/project/${projectSlug}/${lastJobNumber}/artifacts`);
+    data = await callout.get(CIRCLECI, `/project/${projectSlug}/${lastJobNumber}/artifacts`);
     for(let item of data.items) {
         if(item.path === process.env.PACKAGE_UPDATE_PATH) {
             const {_, stderr} = exec(`wget ${item.url} --header "Circle-Token: ${process.env.CIRCLE_TOKEN}" > ../${process.env.PACKAGE_UPDATE_FILENAME}`);
