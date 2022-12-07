@@ -10,6 +10,7 @@ function start() {
   let workQueue = new Queue('work', process.env.REDIS_URL);
 
   workQueue.process('kickoff', async (job) => {
+    console.log('Kickoff job received');
     await orchestrate(job.data);
   });
   workQueue.process('scheduled', async () => {
