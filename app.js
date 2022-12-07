@@ -2,7 +2,7 @@ const express = require('express');
 
 const PORT = process.env.PORT || '3000';
 
-const jobRoutes = require('./routes');
+const { jobRoutes } = require('./routes');
 
 let app = express();
 app.use(express.json());
