@@ -8,6 +8,7 @@ const { queueJob } = require('../services');
 const CIRCLECI = 'circleci';
 
 async function createJob(req, res) {
+    console.log(JSON.parse(req.body));
     if(!validateRequest(req)) {
         res.status(403).send({
           body: 'Authorization failed'
