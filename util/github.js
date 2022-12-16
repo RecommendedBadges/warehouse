@@ -15,7 +15,7 @@ async function getOpenPullRequestDetails(parameters) {
     for(let pullRequest of pullRequests) {
         if(
             (pullRequest.base.ref === config.BASE_BRANCH) 
-            && ((parameters.pullRequestNumber && (pullRequest.number === pullRequestNumber)) || !parameters.pullRequestNumber)
+            && ((parameters.pullRequestNumber && (pullRequest.number === parameters.pullRequestNumber)) || !parameters.pullRequestNumber)
         ) {
             return pullRequest;
         }
