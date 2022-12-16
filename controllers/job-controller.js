@@ -2,23 +2,28 @@ const crypto = require('crypto');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const { fatal, callout } = require('../util');
+const { fatal, callout, github } = require('../util');
 const { queueJob } = require('../services');
 
 const CIRCLECI = 'circleci';
+const HEADER_PARAMETER_NAME = 'Token';
 
 async function createJob(req, res) {
     console.log(JSON.parse(JSON.stringify(req.body)));
-    if(!validateRequest(req)) {
+    if(req.get(HEADER_PARAMETER_NAME) != process.env.GITHUB_SECRET) {
         res.status(403).send({
           body: 'Authorization failed'
         });
-    } else if(req.body.pull_request.merged && req.body.repository.html_url == REPOSITORY_URL) {
+        return;
+    } 
+    
+    let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
+    if(pullRequestDetails.merged && (pullRequestDetails.repo.html_url == REPOSITORY_URL)) {
         let lastPipelineID = await getLastPipelineID();
         let lastBuildWorkflowID = await getLastBuildWorkflowID(lastPipelineID);
         await getLastJobArtifacts(lastBuildWorkflowID);
 
-        let jobId = await queueJob();
+        let jobId = await queueJob(req.body.pullRequestNumber);
         res.status(200).send({
             body: `Authorized. jobID: ${jobId}`
           });
@@ -27,11 +32,6 @@ async function createJob(req, res) {
             body: 'Authorized. Job not queued because pull request is not merged.'
         });
     }
-}
-
-function validateRequest(req) {
-    const expectedSignature = 'sha256=' + crypto.createHmac('sha256', process.env.GITHUB_SECRET).update(JSON.stringify(req.body)).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(req.get('x-hub-signature-256')));
 }
 
 async function getLastPipelineID() {

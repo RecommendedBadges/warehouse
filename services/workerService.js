@@ -10,7 +10,7 @@ let reversePackageAliases = {};
 let sfdxProjectJSON = {};
 
 async function setupScheduledJob() {
-  let pullRequestNumber = github.getOpenPullRequestDetails().number;
+  let pullRequestNumber = github.getOpenPullRequestDetails({}).number;
   let issueComments = github.getIssueComments(pullRequestNumber);
   let mostRecentPackageComment;
   let mostRecentPackageCommentDate;
@@ -27,9 +27,9 @@ async function setupScheduledJob() {
   await orchestrate(packagesToUpdate);
 }
 
-async function orchestrate(packagesToUpdate) {
+async function orchestrate({packagesToUpdate, pullRequestNumber}) {
   parseSFDXProjectJSON();
-  await cloneRepo();
+  await cloneRepo(pullRequestNumber);
   let packageLimit = await getRemainingPackageNumber();
   let packagesToUpdateArray = packagesToUpdate.split(' ');
 
@@ -65,7 +65,6 @@ async function orchestrate(packagesToUpdate) {
   }
 
   if(packagesNotUpdated.length > 0) {
-    let pullRequestNumber = await github.getOpenPullRequestDetails().number;
     github.commentOnPullRequest(pullRequestNumber, `${COMMENT_PREFIX}${packagesNotUpdated.join(' ')}`);
     await heroku.scaleClockDyno(1);
   } else {
@@ -84,9 +83,9 @@ function parseSFDXProjectJSON() {
     }
 }
 
-async function cloneRepo() {
+async function cloneRepo(pullRequestNumber) {
   let stderr;
-  let pullRequest = await github.getOpenPullRequestDetails();
+  let pullRequest = await github.getOpenPullRequestDetails({pullRequestNumber});
 
   ({_, stderr} = await exec(
     `git clone https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`

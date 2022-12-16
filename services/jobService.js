@@ -4,14 +4,20 @@ const Queue = require('bull');
 
 let workQueue = new Queue('work', process.env.REDIS_URL);
 
-async function queueJob() {
+async function queueJob(pullRequestNumber) {
     const stdout = fs.readFileSync(
         `../${process.env.PACKAGE_UPDATE_FILENAME}`,
         {
             encoding: 'utf-8'
         }
     );
-    let job = await workQueue.add('kickoff', {sortedPackagesToCreate: stdout});
+    let job = await workQueue.add(
+        'kickoff',
+        {
+            sortedPackagesToCreate: stdout,
+            pullRequestNumber: pullRequestNumber
+        }
+    );
     return job.id;
 }
 

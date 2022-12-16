@@ -10,10 +10,13 @@ async function getIssueComments(issueNumber) {
     return issueComments;
 }
 
-async function getOpenPullRequestDetails() {
+async function getOpenPullRequestDetails(parameters) {
     let pullRequests = await callout.get('github', '/pulls');
     for(let pullRequest of pullRequests) {
-        if(pullRequest.base.ref === github.BASE_BRANCH) {
+        if(
+            (pullRequest.base.ref === github.BASE_BRANCH) 
+            && ((parameters.pullRequestNumber && (pullRequest.number === pullRequestNumber)) || !parameters.pullRequestNumber)
+        ) {
             return pullRequest;
         }
     }
