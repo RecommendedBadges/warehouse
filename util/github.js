@@ -17,6 +17,7 @@ async function getOpenPullRequestDetails(parameters) {
             (pullRequest.base.ref === config.BASE_BRANCH) 
             && ((parameters.pullRequestNumber && (pullRequest.number === parameters.pullRequestNumber)) || !parameters.pullRequestNumber)
         ) {
+            console.log(JSON.parse(JSON.stringify(pullRequest)));
             return pullRequest;
         }
     }
