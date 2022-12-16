@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const { common } = require('../config');
+const common = require('../config');
 const { fatal } = require('./error.js');
 
 async function get(site, endpoint) {
