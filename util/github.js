@@ -1,5 +1,5 @@
 const callout = require('./callout.js');
-const { github } = require('../config');
+const config = require('../config');
 
 async function commentOnPullRequest(pullRequestNumber, commentBody) {
     callout.post('github', `/issues/${pullRequestNumber}/comments`, commentBody);
@@ -14,7 +14,7 @@ async function getOpenPullRequestDetails(parameters) {
     let pullRequests = await callout.get('github', '/pulls');
     for(let pullRequest of pullRequests) {
         if(
-            (pullRequest.base.ref === github.BASE_BRANCH) 
+            (pullRequest.base.ref === config.BASE_BRANCH) 
             && ((parameters.pullRequestNumber && (pullRequest.number === pullRequestNumber)) || !parameters.pullRequestNumber)
         ) {
             return pullRequest;
