@@ -3,4 +3,6 @@ function fatal(origin, err) {
     process.exit(1);
 }
 
-module.exports = fatal;
+module.exports = {
+    fatal
+};
