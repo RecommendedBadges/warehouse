@@ -13,11 +13,12 @@ async function getIssueComments(issueNumber) {
 async function getOpenPullRequestDetails(parameters) {
     let pullRequests = await callout.get('github', '/pulls');
     for(let pullRequest of pullRequests) {
+
+        console.log(JSON.parse(JSON.stringify(pullRequest)));
         if(
             (pullRequest.base.ref === config.BASE_BRANCH) 
             && ((parameters.pullRequestNumber && (pullRequest.number === parameters.pullRequestNumber)) || !parameters.pullRequestNumber)
         ) {
-            console.log(JSON.parse(JSON.stringify(pullRequest)));
             return pullRequest;
         }
     }

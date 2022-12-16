@@ -8,7 +8,6 @@ const CIRCLECI = 'circleci';
 const HEADER_PARAMETER_NAME = 'Token';
 
 async function createJob(req, res) {
-    console.log(JSON.parse(JSON.stringify(req.body)));
     if(req.get(HEADER_PARAMETER_NAME) != process.env.GITHUB_SECRET) {
         res.status(403).send({
           body: 'Authorization failed'
