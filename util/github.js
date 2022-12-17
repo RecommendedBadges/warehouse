@@ -12,6 +12,7 @@ async function getIssueComments(issueNumber) {
 
 async function getOpenPullRequestDetails(parameters) {
     let pullRequests = await callout.get('github', '/pulls');
+    console.log(parameters.pullRequestNumber);
     for(let pullRequest of pullRequests) {
 
         console.log(JSON.parse(JSON.stringify(pullRequest)));
