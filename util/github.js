@@ -18,8 +18,9 @@ async function getOpenPullRequestDetails(parameters) {
         console.log(JSON.parse(JSON.stringify(pullRequest)));
         if(
             (pullRequest.base.ref === config.BASE_BRANCH) 
-            && ((parameters.pullRequestNumber && (pullRequest.number === parameters.pullRequestNumber)) || !parameters.pullRequestNumber)
+            && ((parameters.pullRequestNumber && (pullRequest.number == parameters.pullRequestNumber)) || !parameters.pullRequestNumber)
         ) {
+            console.log('returning value');
             return pullRequest;
         }
     }
