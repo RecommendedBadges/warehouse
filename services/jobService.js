@@ -18,6 +18,7 @@ async function queueJob(pullRequestNumber) {
             pullRequestNumber: pullRequestNumber
         }
     );
+    process.stdout.write('Queued kickoff job');
     return job.id;
 }
 
