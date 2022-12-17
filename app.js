@@ -34,5 +34,3 @@ workQueue.on('global:completed', (jobId, result) => {
 */
 
 app.listen(PORT, () => console.log("Server started!"));
-
-process.stdout.write('Server started stdout');

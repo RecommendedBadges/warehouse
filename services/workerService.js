@@ -32,11 +32,13 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
   await cloneRepo(pullRequestNumber);
   let packageLimit = await getRemainingPackageNumber();
   let packagesToUpdateArray = packagesToUpdate.split(' ');
+  process.stdout.write(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
 
   await authorize();
 
   let packagesNotUpdated;
   for(let packageToUpdate of packagesToUpdateArray) {
+    process.stdout.write(`Creating package version for ${packageToUpdate}\n`);
     let stdout;
     let stderr;
     
