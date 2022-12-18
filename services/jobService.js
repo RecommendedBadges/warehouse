@@ -12,7 +12,7 @@ async function queueJob({packagesToUpdate, pullRequestNumber}) {
             pullRequestNumber: pullRequestNumber,
         }
     );
-    process.stdout.write('Queued kickoff job');
+    console.log('Queued kickoff job');
     return job.id;
 }
 

@@ -32,13 +32,13 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
   await cloneRepo(pullRequestNumber);
   let packageLimit = await getRemainingPackageNumber();
   let packagesToUpdateArray = packagesToUpdate.split(' ');
-  process.stdout.write(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
+  console.log(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
 
   await authorize();
 
   let packagesNotUpdated;
   for(let packageToUpdate of packagesToUpdateArray) {
-    process.stdout.write(`Creating package version for ${packageToUpdate}\n`);
+    console.log(`Creating package version for ${packageToUpdate}\n`);
     let stdout;
     let stderr;
     
@@ -147,8 +147,7 @@ async function getPackageNameFromDependency(dependentPackage) {
     );
     
     if(stderr) {
-      process.stderr.write(`Error in getPackageNameFromDependency(): ${stderr}`);
-      process.exit(1);
+      fatal('getPackageNameFromDependency()', stderr);
     }
     let result = JSON.parse(stdout).result.records;
     if(result.length > 0 && reversePackageAliases[result[0].Package2Id]) {
