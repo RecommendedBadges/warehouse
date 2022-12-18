@@ -23,11 +23,11 @@ async function createJob(req, res) {
 
         let jobId = await queueJob(req.body.pullRequestNumber);
         res.status(200).send({
-            body: `Authorized. jobID: ${jobId}`
+            data: `Authorized. jobID: ${jobId}`
           });
     } else {
         res.status(204).send({
-            body: 'Authorized.'
+            data: 'Authorized.'
         });
     }
 }
