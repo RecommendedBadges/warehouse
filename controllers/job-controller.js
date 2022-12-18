@@ -52,12 +52,10 @@ async function getLastJobArtifacts(workflowID) {
     let data = await callout.get(CIRCLECI, `/workflow/${workflowID}/job`);
     let projectSlug = data.items[0].project_slug;
     let lastJobNumber = data.items[0].job_number;
+
     data = await callout.get(CIRCLECI, `/project/${projectSlug}/${lastJobNumber}/artifacts`);
-    console.log(data);
     for(let item of data.items) {
-        console.log(item);
         if(item.path === process.env.PACKAGE_UPDATE_PATH) {
-            console.log('in if statement');
             const {_, stderr} = exec(`wget ${item.url} --header "Circle-Token: ${process.env.CIRCLE_TOKEN}" > ../${process.env.PACKAGE_UPDATE_FILENAME}`);
             if(stderr) {
                 fatal('getLastJobArtifacts()', stderr);
