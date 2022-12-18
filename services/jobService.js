@@ -22,4 +22,6 @@ async function queueJob(pullRequestNumber) {
     return job.id;
 }
 
-module.exports = queueJob;
+module.exports = {
+    queueJob
+};

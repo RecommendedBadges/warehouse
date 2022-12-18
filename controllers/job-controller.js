@@ -16,7 +16,6 @@ async function createJob(req, res) {
     } 
     
     let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
-    console.log(JSON.parse(JSON.stringify(pullRequestDetails)));
     if(pullRequestDetails.base.repo.svn_url.includes(process.env.REPOSITORY_URL)) {
         let lastPipelineID = await getLastPipelineID();
         let lastBuildWorkflowID = await getLastBuildWorkflowID(lastPipelineID);
