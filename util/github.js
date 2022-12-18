@@ -6,12 +6,18 @@ async function commentOnPullRequest(pullRequestNumber, commentBody) {
 }
 
 async function getIssueComments(issueNumber) {
-    let issueComments = await callout.get('github', `/issues/${issueNumber}/comments`);
+    let issueComments = await callout.get({
+        site: 'github',
+        endpoint: `/issues/${issueNumber}/comments`
+    });
     return issueComments;
 }
 
 async function getOpenPullRequestDetails(parameters) {
-    let pullRequests = await callout.get('github', '/pulls');
+    let pullRequests = await callout.get({
+        site: 'github',
+        endpoint: '/pulls'
+    });
     for(let pullRequest of pullRequests) {
         if(
             (pullRequest.base.ref === config.BASE_BRANCH) 

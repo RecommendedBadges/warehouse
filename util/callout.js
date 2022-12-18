@@ -3,10 +3,10 @@ const axios = require('axios');
 const common = require('../config');
 const { fatal } = require('./error.js');
 
-async function get(site, endpoint) {
+async function get({site, endpoint, fullUrl}) {
     try {
         const res = await axios.get(
-            `${common.API_BASES[site]}${endpoint}`,
+            fullUrl ? fullUrl : `${common.API_BASES[site]}${endpoint}`,
             {
                 headers: common.REQUEST_HEADERS[site]
             },
