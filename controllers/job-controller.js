@@ -16,7 +16,7 @@ async function createJob(req, res) {
     } 
     
     let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
-    if(pullRequestDetails.merged && (pullRequestDetails.repo.html_url == REPOSITORY_URL)) {
+    if(pullRequestDetails.repo.html_url == REPOSITORY_URL) {
         let lastPipelineID = await getLastPipelineID();
         let lastBuildWorkflowID = await getLastBuildWorkflowID(lastPipelineID);
         await getLastJobArtifacts(lastBuildWorkflowID);
@@ -27,7 +27,7 @@ async function createJob(req, res) {
           });
     } else {
         res.status(204).send({
-            body: 'Authorized. Job not queued because pull request is not merged.'
+            body: 'Authorized.'
         });
     }
 }
