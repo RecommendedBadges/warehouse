@@ -13,9 +13,6 @@ function start() {
 
   workQueue.process('kickoff', async (job) => {
     console.log('Kickoff job received');
-    console.log(job.data);
-    console.log('\n');
-    console.log(job);
     await orchestrate(job.data);
   });
 
