@@ -108,17 +108,17 @@ async function cloneRepo(pullRequestNumber) {
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
-
+  console.log('repo cloned');
   ({_, stderr} = await exec(`cd ${process.env.REPOSITORY_NAME}`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
-
+  console.log('in repo folder');
   ({_, stderr} = await exec(`git config user.email ${process.env.GIT_USER_EMAIL}`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
-
+  console.log('email set');
   ({_, stderr} = await exec(`git config user.name ${process.env.GIT_USER_NAME}`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
