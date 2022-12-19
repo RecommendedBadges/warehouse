@@ -28,11 +28,15 @@ async function setupScheduledJob() {
 }
 
 async function orchestrate({packagesToUpdate, pullRequestNumber}) {
-  console.log('Orhestrating');
+  console.log('Orchestrating');
   parseSFDXProjectJSON();
+  console.log('Parsed');
   await cloneRepo(pullRequestNumber);
+  console.log('Repo cloned');
   let packageLimit = await getRemainingPackageNumber();
-  let packagesToUpdateArray = packagesToUpdate.split(' ');
+  console.log('Package limit retrieved');
+  console.log(packagesToUpdate);
+  let packagesToUpdateArray = packagesToUpdate.split('\n');
   console.log(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
 
   await authorize();
