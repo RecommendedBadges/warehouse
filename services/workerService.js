@@ -108,21 +108,45 @@ async function cloneRepo(pullRequestNumber) {
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
-  console.log('repo cloned');
+
   ({_, stderr} = await exec(`cd ${process.env.REPOSITORY_NAME}`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
   console.log('in repo folder');
+
+  let stdout;
+  ({stdout, stderr} = await exec(`git config --list`));
+  if(stderr) {
+    fatal('cloneRepo()', stderr);
+  } else {
+    console.log(stdout);
+  }
+
   ({_, stderr} = await exec(`git config user.email ${process.env.GIT_USER_EMAIL}`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
   console.log('email set');
+  ({stdout, stderr} = await exec(`git config user.email`));
+  if(stderr) {
+    fatal('cloneRepo()', stderr);
+  } else {
+    console.log(stdout);
+  }
+
+
   ({_, stderr} = await exec(`git config user.name ${process.env.GIT_USER_NAME}`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
+  ({stdout, stderr} = await exec(`git config user.name`));
+  if(stderr) {
+    fatal('cloneRepo()', stderr);
+  } else {
+    console.log(stdout);
+  }
+
 }
 
 async function updatePackageJSON(package) {
