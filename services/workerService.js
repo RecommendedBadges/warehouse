@@ -103,7 +103,7 @@ async function cloneRepo(pullRequestNumber) {
   let pullRequest = await github.getOpenPullRequestDetails({pullRequestNumber});
 
   ({_, stderr} = await exec(
-    `git clone https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`
+    `git clone -q https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`
   ));
   if(stderr) {
     fatal('cloneRepo()', stderr);
