@@ -28,6 +28,7 @@ async function setupScheduledJob() {
 }
 
 async function orchestrate({packagesToUpdate, pullRequestNumber}) {
+  console.log('Orhestrating');
   parseSFDXProjectJSON();
   await cloneRepo(pullRequestNumber);
   let packageLimit = await getRemainingPackageNumber();

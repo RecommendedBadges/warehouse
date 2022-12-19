@@ -8,11 +8,17 @@ let workers = process.env.WEB_CONCURRENCY || 1;
 function start() {
   // Connect to the named work queue
   let workQueue = new Queue('work', process.env.REDIS_URL);
+  
   console.log('Worker started.');
+
   workQueue.process('kickoff', async (job) => {
     console.log('Kickoff job received');
+    console.log(job.data);
+    console.log('\n');
+    console.log(job);
     await orchestrate(job.data);
   });
+
   workQueue.process('scheduled', async () => {
     await setupScheduledJob();
   })
