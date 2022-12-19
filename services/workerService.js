@@ -81,13 +81,21 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
 }
 
 function parseSFDXProjectJSON() {
+  console.log('in parseSFDXProjectJSON()');
+  try {
     sfdxProjectJSON = JSON.parse(fs.readFileSync(SFDX_PROJECT_JSON_FILENAME));
+    console.log('file read');
     packageAliases = sfdxProjectJSON.packageAliases;
     reversePackageAliases = {};
 
+    console.log('before for loop');
     for(let alias in packageAliases) {
-        reversePackageAliases[packageAliases[alias]] = alias;
+      console.log(alias);
+      reversePackageAliases[packageAliases[alias]] = alias;
     }
+  } catch(err) {
+    fatal('parseSFDXProjectJSON()', err.message);
+  }
 }
 
 async function cloneRepo(pullRequestNumber) {
