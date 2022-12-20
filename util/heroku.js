@@ -11,4 +11,6 @@ async function scaleClockDyno(numDynos) {
     );
 }
 
-module.exports = scaleClockDyno;
+module.exports = {
+    scaleClockDyno
+};
