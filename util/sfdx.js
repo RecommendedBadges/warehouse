@@ -8,9 +8,9 @@ async function authorize() {
     console.log('in authorize');
 
     let {stderr} = await exec(
-        `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRIPTION_KEY} -iv ${DECRYPTION_IV}`
+        `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRIPTION_KEY} -iv ${process.env.DECRYPTION_IV}`
     );
-    console.log('after')
+    console.log('after');
     if(stderr) {
         fatal('authorize()', stderr);
     }
