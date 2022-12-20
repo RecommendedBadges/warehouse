@@ -6,10 +6,12 @@ const { fatal } = require('./error.js');
 async function authorize() {
     //let stderr;
     console.log('in authorize');
-
-    let {stderr} = await exec(
+    let {stdout, stderr} = await exec(`openssl version`);
+    console.log(stdout);
+    console.log(stderr);
+    ({stderr} = await exec(
         `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRIPTION_KEY} -iv ${process.env.DECRYPTION_IV}`
-    );
+    ));
     console.log('after');
     if(stderr) {
         fatal('authorize()', stderr);
