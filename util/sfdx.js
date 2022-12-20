@@ -23,7 +23,7 @@ async function authorize() {
     console.log(stdout);
 
     ({stderr} = await exec(
-        `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS`
+        `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS -p`
     ))
     if(stderr && stderr != jwtGrantStdErr) {
         fatal('authorize()', stderr);
