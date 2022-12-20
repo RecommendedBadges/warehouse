@@ -118,13 +118,13 @@ async function cloneRepo(pullRequestNumber) {
   let stdout;
   ({stdout, stderr} = await exec(`ls`));
   console.log('after command execution');
-  ({stdout, stderr} = await exec(`git config user.email`));
+  console.log(stdout);
+  /*({stdout, stderr} = await exec(`git config user.email`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
   } else {
     console.log(stdout);
   }
-  /*
   console.log(stdout);
   console.log(stderr);
   if(stderr) {
