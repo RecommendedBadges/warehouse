@@ -34,24 +34,24 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   parseSFDXProjectJSON();
   await sfdx.authorize();
   let packageLimit = await sfdx.getRemainingPackageNumber();
-  console.log('Package limit retrieved');
-  console.log(sortedPackagesToUpdate);
   let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
-  console.log(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
+  process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
 
   let packagesNotUpdated;
   for(let packageToUpdate of sortedPackagesToUpdateArray) {
-    console.log(`Creating package version for ${packageToUpdate}\n`);
+    process.stdout.write(`Creating package version for ${packageToUpdate}\n`);
     let stdout;
     let stderr;
     
+    console.log(packageLimit);
     if(packageLimit > 0) {
       ({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
       if(stderr) {
         error.fatal('orchestrate()', stderr);
       }
 
+      console.log('packageVersionCreated');
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
 
       ({stdout, stderr} = await exec(`sfdx force:package:version:promote -p ${subscriberPackageVersionId} -n --json`));
