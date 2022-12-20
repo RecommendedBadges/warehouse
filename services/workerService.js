@@ -28,7 +28,6 @@ async function setupScheduledJob() {
 }
 
 async function orchestrate({packagesToUpdate, pullRequestNumber}) {
-  console.log('Orchestrating');
   await cloneRepo(pullRequestNumber);
   console.log('Repo cloned');
   parseSFDXProjectJSON();
@@ -81,16 +80,12 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
 }
 
 function parseSFDXProjectJSON() {
-  console.log('in parseSFDXProjectJSON()');
   try {
     sfdxProjectJSON = JSON.parse(fs.readFileSync(`${process.env.REPOSITORY_NAME}/${SFDX_PROJECT_JSON_FILENAME}`));
-    console.log('file read');
     packageAliases = sfdxProjectJSON.packageAliases;
     reversePackageAliases = {};
 
-    console.log('before for loop');
     for(let alias in packageAliases) {
-      console.log(alias);
       reversePackageAliases[packageAliases[alias]] = alias;
     }
   } catch(err) {
@@ -113,44 +108,6 @@ async function cloneRepo(pullRequestNumber) {
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
-  console.log(stderr);
-  console.log('in repo folder');
-  let stdout;
-  ({stdout, stderr} = await exec(`ls`));
-  console.log('after command execution');
-  console.log(stdout);
-  /*({stdout, stderr} = await exec(`git config user.email`));
-  if(stderr) {
-    fatal('cloneRepo()', stderr);
-  } else {
-    console.log(stdout);
-  }
-  console.log(stdout);
-  console.log(stderr);
-  if(stderr) {
-    fatal('cloneRepo()', stderr);
-  } else {
-    console.log(stdout);
-  }
-
-  ({_, stderr} = await exec(`git config user.email ${process.env.GIT_USER_EMAIL}`));
-  if(stderr) {
-    fatal('cloneRepo()', stderr);
-  }
-  console.log('email set');
-
-
-  ({_, stderr} = await exec(`git config user.name ${process.env.GIT_USER_NAME}`));
-  if(stderr) {
-    fatal('cloneRepo()', stderr);
-  }
-  ({stdout, stderr} = await exec(`git config user.name`));
-  if(stderr) {
-    fatal('cloneRepo()', stderr);
-  } else {
-    console.log(stdout);
-  }*/
-
 }
 
 async function updatePackageJSON(package) {
