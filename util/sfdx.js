@@ -18,9 +18,9 @@ async function authorize() {
         fatal('authorize()', stderr);
     }
 
-    ({stdout, stderr} = await exec(sfdx -v));
-    console.log(stdout);
+    ({stdout, stderr} = await exec(`sfdx -v`));
     console.log(stderr);
+    console.log(stdout);
 
     ({stderr} = await exec(
         `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS`
