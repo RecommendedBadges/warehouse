@@ -27,22 +27,22 @@ async function setupScheduledJob() {
   await orchestrate(packagesToUpdate);
 }
 
-async function orchestrate({packagesToUpdate, pullRequestNumber}) {
+async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   await cloneRepo(pullRequestNumber);
-  console.log('Repo cloned');
+  process.stdout.write('Repo cloned');
   parseSFDXProjectJSON();
   console.log('Parsed');
   await sfdx.authorize();
   console.log('Authorized');
   let packageLimit = await sfdx.getRemainingPackageNumber();
   console.log('Package limit retrieved');
-  console.log(packagesToUpdate);
-  let packagesToUpdateArray = packagesToUpdate.split('\n');
-  console.log(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
+  console.log(sortedPackagesToUpdate);
+  let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
+  console.log(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
 
   let packagesNotUpdated;
-  for(let packageToUpdate of packagesToUpdateArray) {
+  for(let packageToUpdate of sortedPackagesToUpdateArray) {
     console.log(`Creating package version for ${packageToUpdate}\n`);
     let stdout;
     let stderr;
