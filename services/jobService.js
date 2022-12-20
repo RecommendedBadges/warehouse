@@ -8,11 +8,11 @@ async function queueJob({packagesToUpdate, pullRequestNumber}) {
     let job = await workQueue.add(
         'kickoff',
         {
-            sortedPackagesToCreate: packagesToUpdate,
+            sortedPackagesToUpdate: packagesToUpdate,
             pullRequestNumber: pullRequestNumber,
         }
     );
-    console.log('Queued kickoff job');
+    process.stdout.write('Queued kickoff job');
     return job.id;
 }
 

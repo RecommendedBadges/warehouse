@@ -29,11 +29,10 @@ async function setupScheduledJob() {
 
 async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   await cloneRepo(pullRequestNumber);
-  process.stdout.write('Repo cloned');
+  process.stdout.write('Repo cloned\n');
+  
   parseSFDXProjectJSON();
-  console.log('Parsed');
   await sfdx.authorize();
-  console.log('Authorized');
   let packageLimit = await sfdx.getRemainingPackageNumber();
   console.log('Package limit retrieved');
   console.log(sortedPackagesToUpdate);
