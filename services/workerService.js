@@ -115,7 +115,7 @@ async function cloneRepo(pullRequestNumber) {
   }
   console.log(stderr);
   console.log('in repo folder');
-  let stdout;
+  /*let stdout;
   ({stdout, stderr} = await exec(`git config --list`));
   console.log('after command execution');
   ({stdout, stderr} = await exec(`git config user.email`));
@@ -148,7 +148,7 @@ async function cloneRepo(pullRequestNumber) {
     fatal('cloneRepo()', stderr);
   } else {
     console.log(stdout);
-  }
+  }*/
 
 }
 
