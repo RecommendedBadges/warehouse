@@ -3,24 +3,23 @@ const exec = util.promisify(require('child_process').exec);
 
 const { fatal } = require('./error.js');
 
+const jwtGrantStdErr = 'You acknowledge and agree that the CLI tool may collect usage information, user environment, and crash reports for the purposes of providing services or functions that are relevant to use of the CLI tool and product improvements.';
+
+
 async function authorize() {
-    //let stderr;
-    console.log('in authorize');
-    let {stdout, stderr} = await exec(`openssl version`);
-    console.log(stdout);
-    console.log(stderr);
+    let stderr;
+
     ({stderr} = await exec(
         `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRYPTION_KEY} -iv ${process.env.DECRYPTION_IV}`
     ));
-    console.log('after');
     if(stderr) {
         fatal('authorize()', stderr);
     }
-    console.log('key decoded');
+
     ({stderr} = await exec(
         `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS`
     ))
-    if(stderr) {
+    if(stderr && stderr != jwtGrantStdErr) {
         fatal('authorize()', stderr);
     }
 }
