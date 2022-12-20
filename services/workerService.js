@@ -99,7 +99,6 @@ function parseSFDXProjectJSON() {
 }
 
 async function cloneRepo(pullRequestNumber) {
-  let stderr;
   let pullRequest = await github.getOpenPullRequestDetails({pullRequestNumber});
 
   ({_, stderr} = await exec(
@@ -115,7 +114,6 @@ async function cloneRepo(pullRequestNumber) {
   }
   console.log('in repo folder');
   console.log(stderr);
-  let stdout;
   ({stdout, stderr} = await exec(`git config --list`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
