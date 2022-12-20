@@ -5,6 +5,7 @@ const { fatal } = require('./error.js');
 
 async function authorize() {
     let stderr;
+    console.log('in authorize');
 
     ({_, stderr} = await exec(
         `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRIPTION_KEY} -iv ${DECRYPTION_IV}`
@@ -12,7 +13,7 @@ async function authorize() {
     if(stderr) {
         fatal('authorize()', stderr);
     }
-
+    console.log('key decoded');
     ({_, stderr} = await exec(
         `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS`
     ))
