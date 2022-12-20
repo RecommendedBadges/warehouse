@@ -4,12 +4,12 @@ const exec = util.promisify(require('child_process').exec);
 const { fatal } = require('./error.js');
 
 async function authorize() {
-    let stderr;
+    //let stderr;
     console.log('in authorize');
 
-    ({_, stderr} = await exec(
+    let {_, stderr} = await exec(
         `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRIPTION_KEY} -iv ${DECRYPTION_IV}`
-    ));
+    );
     if(stderr) {
         fatal('authorize()', stderr);
     }
