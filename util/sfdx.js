@@ -3,7 +3,7 @@ const exec = util.promisify(require('child_process').exec);
 
 const { fatal } = require('./error.js');
 
-const jwtGrantStdErr = 'You acknowledge and agree that the CLI tool may collect usage information, user environment, and crash reports for the purposes of providing services or functions that are relevant to use of the CLI tool and product improvements.';
+const CLI_SERVICE_AGREEMENT = 'You acknowledge and agree that the CLI tool may collect usage information, user environment, and crash reports for the purposes of providing services or functions that are relevant to use of the CLI tool and product improvements.';
 
 
 async function authorize() {
@@ -20,8 +20,7 @@ async function authorize() {
         `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS -p`
     ));
     console.log(stderr);
-    console.log(stderr.includes(jwtGrantStdErr));
-    if(stderr && (stderr != jwtGrantStdErr)) {
+    if(stderr && stderr.includes(CLI_SERVICE_AGREEMENT)) {
         fatal('authorize()', stderr);
     }
 }
