@@ -118,6 +118,12 @@ async function cloneRepo(pullRequestNumber) {
   let stdout;
   ({stdout, stderr} = await exec(`git config --list`));
   console.log('after command execution');
+  ({stdout, stderr} = await exec(`git config user.email`));
+  if(stderr) {
+    fatal('cloneRepo()', stderr);
+  } else {
+    console.log(stdout);
+  }
   console.log(stdout);
   console.log(stderr);
   if(stderr) {
@@ -131,12 +137,6 @@ async function cloneRepo(pullRequestNumber) {
     fatal('cloneRepo()', stderr);
   }
   console.log('email set');
-  ({stdout, stderr} = await exec(`git config user.email`));
-  if(stderr) {
-    fatal('cloneRepo()', stderr);
-  } else {
-    console.log(stdout);
-  }
 
 
   ({_, stderr} = await exec(`git config user.name ${process.env.GIT_USER_NAME}`));
