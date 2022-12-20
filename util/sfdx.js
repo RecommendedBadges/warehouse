@@ -9,12 +9,18 @@ const jwtGrantStdErr = 'You acknowledge and agree that the CLI tool may collect 
 async function authorize() {
     let stderr;
 
+    let stdout;
+
     ({stderr} = await exec(
         `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRYPTION_KEY} -iv ${process.env.DECRYPTION_IV}`
     ));
     if(stderr) {
         fatal('authorize()', stderr);
     }
+
+    ({stdout, stderr} = await exec(sfdx -v));
+    console.log(stdout);
+    console.log(stderr);
 
     ({stderr} = await exec(
         `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS`
