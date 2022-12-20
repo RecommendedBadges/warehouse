@@ -9,7 +9,7 @@
     "bull": "^3.7.0",
     "express": "^4.16.4",
     "foreman": "^3.0.1",
-    "sfdx-cli": "^7.174.0",
+    "sfdx-cli": "^7.181.0",
     "throng": "^4.0.0"
   },
   "scripts": {
