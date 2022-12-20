@@ -100,6 +100,7 @@ function parseSFDXProjectJSON() {
 
 async function cloneRepo(pullRequestNumber) {
   let pullRequest = await github.getOpenPullRequestDetails({pullRequestNumber});
+  let stderr;
 
   ({_, stderr} = await exec(
     `git clone -q https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`
@@ -112,8 +113,9 @@ async function cloneRepo(pullRequestNumber) {
   if(stderr) {
     fatal('cloneRepo()', stderr);
   }
-  console.log('in repo folder');
   console.log(stderr);
+  console.log('in repo folder');
+  let stdout;
   ({stdout, stderr} = await exec(`git config --list`));
   if(stderr) {
     fatal('cloneRepo()', stderr);
