@@ -83,7 +83,7 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
 function parseSFDXProjectJSON() {
   console.log('in parseSFDXProjectJSON()');
   try {
-    sfdxProjectJSON = JSON.parse(fs.readFileSync(`${process.env.REPOSITORY_NAME}/SFDX_PROJECT_JSON_FILENAME`));
+    sfdxProjectJSON = JSON.parse(fs.readFileSync(`${process.env.REPOSITORY_NAME}/${SFDX_PROJECT_JSON_FILENAME}`));
     console.log('file read');
     packageAliases = sfdxProjectJSON.packageAliases;
     reversePackageAliases = {};
@@ -168,7 +168,7 @@ async function updatePackageJSON(package) {
     }
   }
 
-  fs.writeFileSync(`${process.env.REPOSITORY_NAME}/SFDX_PROJECT_JSON_FILENAME`, JSON.stringify(sfdxProjectJSON, null, 2));
+  fs.writeFileSync(`${process.env.REPOSITORY_NAME}/${SFDX_PROJECT_JSON_FILENAME}`, JSON.stringify(sfdxProjectJSON, null, 2));
   parseSFDXProjectJSON();
 }
 
