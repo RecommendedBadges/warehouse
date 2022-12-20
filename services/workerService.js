@@ -117,6 +117,7 @@ async function cloneRepo(pullRequestNumber) {
   console.log('in repo folder');
   let stdout;
   ({stdout, stderr} = await exec(`git config --list`));
+  console.log('after command execution');
   console.log(stdout);
   console.log(stderr);
   if(stderr) {
