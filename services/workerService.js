@@ -32,13 +32,14 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
   console.log('Repo cloned');
   parseSFDXProjectJSON();
   console.log('Parsed');
+  await sfdx.authorize();
+  console.log('Authorized');
   let packageLimit = await sfdx.getRemainingPackageNumber();
   console.log('Package limit retrieved');
   console.log(packagesToUpdate);
   let packagesToUpdateArray = packagesToUpdate.split('\n');
   console.log(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
 
-  await sfdx.authorize();
 
   let packagesNotUpdated;
   for(let packageToUpdate of packagesToUpdateArray) {
