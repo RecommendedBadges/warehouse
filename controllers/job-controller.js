@@ -1,7 +1,4 @@
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-
-const { fatal, callout, github } = require('../util');
+const { callout, github } = require('../util');
 const { queueJob } = require('../services');
 
 const CIRCLECI = 'circleci';

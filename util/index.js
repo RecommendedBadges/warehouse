@@ -4,4 +4,10 @@ const github = require('./github.js');
 const heroku = require('./heroku.js');
 const sfdx = require('./sfdx.js');
 
-module.exports = Object.assign({}, callout, error, github, heroku, sfdx);
+module.exports = {
+    callout,
+    error,
+    github,
+    heroku,
+    sfdx
+};

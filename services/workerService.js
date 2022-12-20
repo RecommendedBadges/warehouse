@@ -3,7 +3,7 @@ const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
 
 const {COMMENT_PREFIX, PACKAGE_ALIAS_DELIMITER, PACKAGE_ID_PREFIX, PACKAGE_VERSION_ID_PREFIX, SFDX_PROJECT_JSON_FILENAME} = require('../config');
-const { authorize, fatal, github, getRemainingPackageNumber, heroku } = require('../util');
+const { error, github, heroku, sfdx } = require('../util');
 
 let packageAliases = {};
 let reversePackageAliases = {};
@@ -32,13 +32,13 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
   console.log('Repo cloned');
   parseSFDXProjectJSON();
   console.log('Parsed');
-  let packageLimit = await getRemainingPackageNumber();
+  let packageLimit = await sfdx.getRemainingPackageNumber();
   console.log('Package limit retrieved');
   console.log(packagesToUpdate);
   let packagesToUpdateArray = packagesToUpdate.split('\n');
   console.log(`List of packages to update is ${packagesToUpdateArray.join(', ')}\n`);
 
-  await authorize();
+  await sfdx.authorize();
 
   let packagesNotUpdated;
   for(let packageToUpdate of packagesToUpdateArray) {
@@ -49,14 +49,14 @@ async function orchestrate({packagesToUpdate, pullRequestNumber}) {
     if(packageLimit > 0) {
       ({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
       if(stderr) {
-        fatal('orchestrate()', stderr);
+        error.fatal('orchestrate()', stderr);
       }
 
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
 
       ({stdout, stderr} = await exec(`sfdx force:package:version:promote -p ${subscriberPackageVersionId} -n --json`));
       if(stderr) {
-        fatal('orchestrate()', stderr);
+        error.fatal('orchestrate()', stderr);
       }
 
       let query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${JSON.parse(stdout).result.id}'`
@@ -89,7 +89,7 @@ function parseSFDXProjectJSON() {
       reversePackageAliases[packageAliases[alias]] = alias;
     }
   } catch(err) {
-    fatal('parseSFDXProjectJSON()', err.message);
+    error.fatal('parseSFDXProjectJSON()', err.message);
   }
 }
 
@@ -101,12 +101,12 @@ async function cloneRepo(pullRequestNumber) {
     `git clone -q https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`
   ));
   if(stderr) {
-    fatal('cloneRepo()', stderr);
+    error.fatal('cloneRepo()', stderr);
   }
 
   ({_, stderr} = await exec(`cd ${process.env.REPOSITORY_NAME}`));
   if(stderr) {
-    fatal('cloneRepo()', stderr);
+    error.fatal('cloneRepo()', stderr);
   }
 }
 
@@ -145,7 +145,7 @@ async function getPackageNameFromDependency(dependentPackage) {
     );
     
     if(stderr) {
-      fatal('getPackageNameFromDependency()', stderr);
+      error.fatal('getPackageNameFromDependency()', stderr);
     }
     let result = JSON.parse(stdout).result.records;
     if(result.length > 0 && reversePackageAliases[result[0].Package2Id]) {
