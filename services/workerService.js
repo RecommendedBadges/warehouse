@@ -57,21 +57,17 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
     let stderr;
     
     if(packageLimit > 0) {
-      try {
-        query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
-        ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
-        let mostRecentPackage = JSON.parse(stdout).result.records[0];
-        let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + 1}.${mostRecentPackage.PatchVersion}.0`;
-        let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion}`;
-        
-        process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
-        ({stdout, stderr} = await exec(`${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`));
-        if(stderr) {
-          error.fatal('orchestrate()', stderr);
-        }
-      // (add something to override default version number behavior?)
-      // move to single branch system (automatically install packages as part of warehouse, remove references to packaging branch)
-      // add refresh button to shortcuts
+      query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
+      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
+      let mostRecentPackage = JSON.parse(stdout).result.records[0];
+      let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + 1}.${mostRecentPackage.PatchVersion}.0`;
+      let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion}`;
+      
+      process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
+      ({stdout, stderr} = await exec(`${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`));
+      if(stderr) {
+        error.fatal('orchestrate()', stderr);
+      }
 
       process.stdout.write(`Releasing package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
@@ -82,20 +78,27 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
       console.log('updating package JSON');
       await updatePackageJSON(packageToUpdate, newPackageVersionNumber);
       packageLimit--;
-    } catch(err) {
-      console.error(err);
-    }
     } else {
       packagesNotUpdated.push(packageToUpdate);
     }
   }
 
   if(packagesNotUpdated.length > 0) {
+    console.log('in if');
+    try {
     github.commentOnPullRequest(pullRequestNumber, `${COMMENT_PREFIX}${packagesNotUpdated.join(' ')}`);
     await heroku.scaleClockDyno(1);
+    } catch(err) {
+      console.error(err);
+    }
   } else {
+    console.log('in else');
+    try {
     await github.mergeOpenPullRequest(pullRequestNumber);
     await heroku.scaleClockDyno(0);
+    } catch(err) {
+      console.error(err);
+    }
   }
 }
 
