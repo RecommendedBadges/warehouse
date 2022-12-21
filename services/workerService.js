@@ -144,7 +144,7 @@ async function updatePackageJSON(packageName, fullPackageNumber) {
       }
     }
   }
-
+  console.log('dependencies updated, writing file');
   fs.writeFileSync(SFDX_PROJECT_JSON_FILENAME, JSON.stringify(sfdxProjectJSON, null, 2));
   parseSFDXProjectJSON();
 }
