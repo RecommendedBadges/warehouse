@@ -99,7 +99,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
 
 function parseSFDXProjectJSON() {
   try {
-    sfdxProjectJSON = JSON.parse(fs.readFileSync(`${process.env.REPOSITORY_NAME}/${SFDX_PROJECT_JSON_FILENAME}`));
+    sfdxProjectJSON = JSON.parse(fs.readFileSync(SFDX_PROJECT_JSON_FILENAME));
     packageAliases = sfdxProjectJSON.packageAliases;
     reversePackageAliases = {};
 
@@ -122,9 +122,10 @@ async function cloneRepo(pullRequestNumber) {
     error.fatal('cloneRepo()', stderr);
   }
 
-  ({_, stderr} = await exec(`cd ${process.env.REPOSITORY_NAME}`));
-  if(stderr) {
-    error.fatal('cloneRepo()', stderr);
+  try {
+    process.chdir(process.env.REPOSITORY_NAME);
+  } catch(err) {
+    error.fatal('cloneRepo()', err);
   }
 }
 
@@ -143,7 +144,7 @@ async function updatePackageJSON(package) {
     }
   }
 
-  fs.writeFileSync(`${process.env.REPOSITORY_NAME}/${SFDX_PROJECT_JSON_FILENAME}`, JSON.stringify(sfdxProjectJSON, null, 2));
+  fs.writeFileSync(SFDX_PROJECT_JSON_FILENAME, JSON.stringify(sfdxProjectJSON, null, 2));
   parseSFDXProjectJSON();
 }
 
