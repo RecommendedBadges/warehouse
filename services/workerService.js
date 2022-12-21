@@ -46,7 +46,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
     let stdout;
     let stderr;
     
-    if(packageLimit > 0) {
+    if(packageLimit > 0 && packageToUpdate === 'TaskList') {
       let packageSomething;
 
       let packageCreation = child_process.spawn(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`);
