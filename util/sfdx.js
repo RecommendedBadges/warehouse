@@ -29,8 +29,7 @@ async function getRemainingPackageNumber() {
     if(stderr) {
         fatal('getPackageLimit()', stderr);
     }
-    console.log('getting package number');
-    console.log(JSON.parse(stdout));
+    
     let remainingPackageNumber;
     for(let limit of JSON.parse(stdout).result) {
         if(limit.name === 'Package2VersionCreates') {

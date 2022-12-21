@@ -1,5 +1,6 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const child_process = require('child_process');
 const fs = require('fs');
 
 const {COMMENT_PREFIX, PACKAGE_ALIAS_DELIMITER, PACKAGE_ID_PREFIX, PACKAGE_VERSION_ID_PREFIX, SFDX_PROJECT_JSON_FILENAME} = require('../config');
@@ -35,6 +36,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   await sfdx.authorize();
   let packageLimit = await sfdx.getRemainingPackageNumber();
   let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
+  process.stdout.write(`Remaining package version creation limit is ${pacakgeLimit}`);
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
 
@@ -44,9 +46,21 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
     let stdout;
     let stderr;
     
-    console.log(packageLimit);
     if(packageLimit > 0) {
-      ({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
+      let packageSomething;
+
+      let packageCreation = child_process.spawn(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`);
+      packageCreation.stdout.on('data', function(data) {
+        console.log('stdout: ' + data.toString());
+      });
+      packageCreation.stderr.on('data', function(data) {
+        console.log('stderr: ' + data.toString());
+      });
+      packageCreation.on('exit', function(code) {
+        console.log('child process exited with code ' + code.toString());
+      });
+
+      /*({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
       if(stderr) {
         error.fatal('orchestrate()', stderr);
       }
@@ -64,7 +78,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
 
       let package = JSON.parse(stdout).result.records[0];
       await updatePackageJSON(package);
-      packageLimit--;
+      packageLimit--;*/
     } else {
       packagesNotUpdated.push(packageToUpdate);
     }
