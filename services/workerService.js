@@ -70,6 +70,8 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
           error.fatal('orchestrate()', stderr);
         }
       // (add something to override default version number behavior?)
+      // move to single branch system (automatically install packages as part of warehouse, remove references to packaging branch)
+      // add refresh button to shortcuts
 
       process.stdout.write(`Releasing package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
@@ -78,7 +80,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
         error.fatal('orchestrate()', stderr);
       }
 
-      let query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${JSON.parse(stdout).result.id}'`
+      query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${JSON.parse(stdout).result.id}'`
       ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`));
       if(stderr) {
         error.fatal('orchestrate()', stderr);
