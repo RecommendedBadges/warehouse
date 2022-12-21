@@ -56,7 +56,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
     let stdout;
     let stderr;
     
-    if(packageLimit > 0 && packageToUpdate === 'TaskList') {
+    if(packageLimit > 0) {
       try {
         query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
         ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
