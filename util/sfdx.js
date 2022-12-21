@@ -5,7 +5,6 @@ const { fatal } = require('./error.js');
 const { AUTH_JWT_GRANT_COMMAND, CLI_SERVICE_AGREEMENT, LIMITS_API_DISPLAY_COMMAND, PACKAGE_LIMIT_NAME} = require('../config');
 
 async function authorize() {
-    try {
     let stderr;
 
     ({stderr} = await exec(
@@ -21,9 +20,6 @@ async function authorize() {
     if(stderr && !stderr.includes(CLI_SERVICE_AGREEMENT)) {
         fatal('authorize()', stderr);
     }
-} catch(err) {
-    console.log(err);
-}
 }
 
 async function getRemainingPackageNumber() {
