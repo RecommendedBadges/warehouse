@@ -44,7 +44,9 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   
   parseSFDXProjectJSON();
   await sfdx.authorize();
+  console.log('authorized');
   let packageLimit = await sfdx.getRemainingPackageNumber();
+  console.log('package limit retrieved');
   let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
   process.stdout.write(`Remaining package version creation limit is ${packageLimit}\n`);
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
