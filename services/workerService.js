@@ -1,6 +1,6 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const child_process = require('child_process');
+const spawn = require('child_process').spawn;
 const fs = require('fs');
 
 const {COMMENT_PREFIX, PACKAGE_ALIAS_DELIMITER, PACKAGE_ID_PREFIX, PACKAGE_VERSION_ID_PREFIX, SFDX_PROJECT_JSON_FILENAME} = require('../config');
@@ -49,7 +49,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
     if(packageLimit > 0 && packageToUpdate === 'TaskList') {
       let packageSomething;
 
-      let packageCreation = child_process.spawn(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`);
+      /*let packageCreation = spawn(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`);
       packageCreation.stdout.on('data', function(data) {
         console.log('stdout: ' + data.toString());
       });
@@ -58,13 +58,17 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
       });
       packageCreation.on('exit', function(code) {
         console.log('child process exited with code ' + code.toString());
-      });
+      });*/
 
-      /*({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
-      if(stderr) {
-        error.fatal('orchestrate()', stderr);
+      try {
+        ({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
+        if(stderr) {
+          error.fatal('orchestrate()', stderr);
+        }
+      } catch(err) {
+        console.error(err);
       }
-
+/*
       console.log('packageVersionCreated');
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
 
