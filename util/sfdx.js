@@ -10,7 +10,7 @@ async function authorize() {
     let stderr;
 
     ({stderr} = await exec(
-        `openssl enc -nosalt -aes-256-cbc -d -in assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRYPTION_KEY} -iv ${process.env.DECRYPTION_IV}`
+        `openssl enc -nosalt -aes-256-cbc -d -in ../assets/server.key.enc -out assets/server.key -base64 -K ${process.env.DECRYPTION_KEY} -iv ${process.env.DECRYPTION_IV}`
     ));
     if(stderr) {
         fatal('authorize()', stderr);
