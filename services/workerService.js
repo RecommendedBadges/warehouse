@@ -80,7 +80,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
         error.fatal('orchestrate()', stderr);
       }
 
-      query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${JSON.parse(stdout).result.id}'`
+      query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${subscriberPackageVersionId}'`
       ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`));
       if(stderr) {
         error.fatal('orchestrate()', stderr);
