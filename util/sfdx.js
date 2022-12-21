@@ -5,6 +5,7 @@ const { fatal } = require('./error.js');
 const { sfdx } = require('../config');
 
 async function authorize() {
+    try {
     let stderr;
 
     ({stderr} = await exec(
@@ -20,6 +21,9 @@ async function authorize() {
     if(stderr && !stderr.includes(sfdx.CLI_SERVICE_AGREEMENT)) {
         fatal('authorize()', stderr);
     }
+} catch(err) {
+    console.log(err);
+}
 }
 
 async function getRemainingPackageNumber() {
