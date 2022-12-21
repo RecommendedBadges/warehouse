@@ -79,7 +79,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
       if(stderr) {
         error.fatal('orchestrate()', stderr);
       }
-
+      console.log('updating package JSON');
       await updatePackageJSON(packageToUpdate, newPackageVersionNumber);
       packageLimit--;
     } catch(err) {
