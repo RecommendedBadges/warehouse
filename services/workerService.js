@@ -83,14 +83,14 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
       packagesNotUpdated.push(packageToUpdate);
     }
   }
-
+/*
   if(packagesNotUpdated.length > 0) {
     github.commentOnPullRequest(pullRequestNumber, `${COMMENT_PREFIX}${packagesNotUpdated.join(' ')}`);
     await heroku.scaleClockDyno(1);
   } else {
     await github.mergeOpenPullRequest(pullRequestNumber);
     await heroku.scaleClockDyno(0);
-  }
+  }*/
 }
 
 function parseSFDXProjectJSON() {
