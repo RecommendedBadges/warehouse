@@ -80,13 +80,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
         error.fatal('orchestrate()', stderr);
       }
 
-      query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${subscriberPackageVersionId}'`
-      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`));
-      if(stderr) {
-        error.fatal('orchestrate()', stderr);
-      }
-      let package = JSON.parse(stdout).result.records[0];
-      await updatePackageJSON(package);
+      await updatePackageJSON(packageToUpdate, newPackageVersionNumber);
       packageLimit--;
     } catch(err) {
       console.error(err);
@@ -137,15 +131,14 @@ async function cloneRepo(pullRequestNumber) {
   }
 }
 
-async function updatePackageJSON(package) {
+async function updatePackageJSON(packageName, fullPackageNumber) {
   for(let packageDirectory of sfdxProjectJSON.packageDirectories) {
     if(packageDirectory.dependencies) {
       for(let i in packageDirectory.dependencies) {
-        let packageName = await getPackageNameFromDependency(packageDirectory.dependencies[i]);
-        if(package.Package2.Name === packageName) {
+        if(packageName === await getPackageNameFromDependency(packageDirectory.dependencies[i])) {
           packageDirectory.dependencies[i] = {
-            "package": package.Package2.Name,
-            "versionNumber": `${package.MajorVersion}.${package.MinorVersion}.${package.PatchVersion}.RELEASED`
+            "package": packageName,
+            "versionNumber": `${fullPackageNumber.substring(0, fullPackageNumber.lastIndexOf('.'))}.RELEASED`
           }
         }
       }
