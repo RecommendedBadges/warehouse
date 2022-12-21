@@ -3,7 +3,17 @@ const exec = util.promisify(require('child_process').exec);
 const spawn = require('child_process').spawn;
 const fs = require('fs');
 
-const {COMMENT_PREFIX, PACKAGE_ALIAS_DELIMITER, PACKAGE_ID_PREFIX, PACKAGE_VERSION_ID_PREFIX, SFDX_PROJECT_JSON_FILENAME} = require('../config');
+const {
+  COMMENT_PREFIX, 
+  PACKAGE_ALIAS_DELIMITER, 
+  PACKAGE_ID_PREFIX,
+  PACKAGE_VERSION_ID_PREFIX, 
+  PACKAGE_VERSION_CREATE_COMMAND, 
+  PACKAGE_VERSION_PROMOTE_COMMAND, 
+  SFDX_PROJECT_JSON_FILENAME, 
+  SOQL_QUERY_COMMAND
+} = require('../config');
+
 const { error, github, heroku, sfdx } = require('../util');
 
 let packageAliases = {};
@@ -36,49 +46,44 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   await sfdx.authorize();
   let packageLimit = await sfdx.getRemainingPackageNumber();
   let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
-  process.stdout.write(`Remaining package version creation limit is ${packageLimit}`);
+  process.stdout.write(`Remaining package version creation limit is ${packageLimit}\n`);
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
 
   let packagesNotUpdated;
+  let query;
   for(let packageToUpdate of sortedPackagesToUpdateArray) {
     process.stdout.write(`Creating package version for ${packageToUpdate}\n`);
     let stdout;
     let stderr;
     
     if(packageLimit > 0 && packageToUpdate === 'TaskList') {
-      let packageSomething;
-
-      /*let packageCreation = spawn(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`);
-      packageCreation.stdout.on('data', function(data) {
-        console.log('stdout: ' + data.toString());
-      });
-      packageCreation.stderr.on('data', function(data) {
-        console.log('stderr: ' + data.toString());
-      });
-      packageCreation.on('exit', function(code) {
-        console.log('child process exited with code ' + code.toString());
-      });*/
-
       try {
-        ({stdout, stderr} = await exec(`sfdx force:package:version:create -p ${packageToUpdate} -x -w ${process.env.WAIT_TIME} --json`));
+        query = 'SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name=${packageToUpdate} ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC';
+        ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
+        let mostRecentPackage = JSON.parse(stdout).result.records[0];
+        let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion}.${mostRecentPackage.PatchVersion}.0`;
+        let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion}`;
+        ({stdout, stderr} = await exec(`${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`));
         if(stderr) {
           error.fatal('orchestrate()', stderr);
         }
       } catch(err) {
         console.error(err);
       }
+      // (add something to override default version number behavior?)
+      // update commands to beta versions
 /*
       console.log('packageVersionCreated');
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
 
-      ({stdout, stderr} = await exec(`sfdx force:package:version:promote -p ${subscriberPackageVersionId} -n --json`));
+      ({stdout, stderr} = await exec(`${PACKAGE_VERSION_PROMOTE_COMMAND} -p ${subscriberPackageVersionId} -n --json`));
       if(stderr) {
         error.fatal('orchestrate()', stderr);
       }
 
       let query = `SELECT MajorVersion, MinorVersion, PatchVersion, Package2.Name FROM Package2Version WHERE SubscriberPackageVersionId='${JSON.parse(stdout).result.id}'`
-      ({stdout, stderr} = await exec(`sfdx force:data:soql:query -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`));
+      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`));
 
       let package = JSON.parse(stdout).result.records[0];
       await updatePackageJSON(package);
@@ -160,7 +165,7 @@ async function getPackageNameFromDependency(dependentPackage) {
   } else if(dependentPackage.package.startsWith(PACKAGE_VERSION_ID_PREFIX)) {
     let query = `SELECT Package2Id FROM Package2Version WHERE SubscriberPackageVersionId='${dependentPackage.package}'`
     const {stderr, stdout} = await exec(
-      `sfdx force:data:soql:query -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`
+      `${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`
     );
     
     if(stderr) {

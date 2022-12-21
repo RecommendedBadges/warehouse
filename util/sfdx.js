@@ -2,9 +2,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 const { fatal } = require('./error.js');
-
-const CLI_SERVICE_AGREEMENT = 'You acknowledge and agree that the CLI tool may collect usage information, user environment, and crash reports for the purposes of providing services or functions that are relevant to use of the CLI tool and product improvements.';
-
+const { sfdx } = require('../config');
 
 async function authorize() {
     let stderr;
@@ -17,22 +15,22 @@ async function authorize() {
     }
 
     ({stderr} = await exec(
-        `sfdx force:auth:jwt:grant -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS -p`
+        `${sfdx.AUTH_JWT_GRANT_COMMAND} -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS -p`
     ));
-    if(stderr && !stderr.includes(CLI_SERVICE_AGREEMENT)) {
+    if(stderr && !stderr.includes(sfdx.CLI_SERVICE_AGREEMENT)) {
         fatal('authorize()', stderr);
     }
 }
 
 async function getRemainingPackageNumber() {
-    const {stdout, stderr} = await exec(`sfdx force:limits:api:display -u ${process.env.HUB_ALIAS} --json`);
+    const {stdout, stderr} = await exec(`${sfdx.LIMITS_API_DISPLAY_COMMAND} -u ${process.env.HUB_ALIAS} --json`);
     if(stderr) {
         fatal('getPackageLimit()', stderr);
     }
     
     let remainingPackageNumber;
     for(let limit of JSON.parse(stdout).result) {
-        if(limit.name === 'Package2VersionCreates') {
+        if(limit.name === sfdx.PACKAGE_LIMIT_NAME) {
             remainingPackageNumber = limit.remaining;
         }
     }
