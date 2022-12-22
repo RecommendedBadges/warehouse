@@ -7,8 +7,10 @@ const {
   COMMENT_PREFIX, 
   PACKAGE_ALIAS_DELIMITER, 
   PACKAGE_ID_PREFIX,
+  PACKAGE_BUILD_NUMBER,
+  PACKAGE_VERSION_CREATE_COMMAND,
   PACKAGE_VERSION_ID_PREFIX, 
-  PACKAGE_VERSION_CREATE_COMMAND, 
+  PACKAGE_VERSION_INCREMENT,
   PACKAGE_VERSION_PROMOTE_COMMAND, 
   SFDX_PROJECT_JSON_FILENAME, 
   SOQL_QUERY_COMMAND
@@ -60,8 +62,8 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
       query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
       ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
       let mostRecentPackage = JSON.parse(stdout).result.records[0];
-      let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + 1}.${mostRecentPackage.PatchVersion}.0`;
-      let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion}`;
+      let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}.${mostRecentPackage.PatchVersion}.${PACKAGE_BUILD_NUMBER}`;
+      let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}`;
       
       process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
       ({stdout, stderr} = await exec(`${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`));
