@@ -50,7 +50,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
 
-  let packagesNotUpdated;
+  let packagesNotUpdated = [];
   let query;
   for(let packageToUpdate of sortedPackagesToUpdateArray) {
     let stdout;
@@ -75,7 +75,7 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
       if(stderr) {
         error.fatal('orchestrate()', stderr);
       }
-      console.log('updating package JSON');
+
       await updatePackageJSON(packageToUpdate, newPackageVersionNumber);
       packageLimit--;
     } else {
@@ -147,7 +147,7 @@ async function updatePackageJSON(packageName, fullPackageNumber) {
       }
     }
   }
-  console.log('dependencies updated, writing file');
+
   fs.writeFileSync(SFDX_PROJECT_JSON_FILENAME, JSON.stringify(sfdxProjectJSON, null, 2));
   parseSFDXProjectJSON();
 }
