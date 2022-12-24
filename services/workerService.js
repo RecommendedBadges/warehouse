@@ -1,13 +1,16 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const spawn = require('child_process').spawn;
 const fs = require('fs');
 
-const {
-  COMMENT_PREFIX, 
-  PACKAGE_ALIAS_DELIMITER, 
-  PACKAGE_ID_PREFIX,
+const { 
+  GIT_CHECKOUT_COMMAND,
+  GIT_CLONE_COMMAND,
+  GIT_COMMIT_COMMAND,
+  GIT_PUSH_COMMAND,
+  PACKAGE_ALIAS_DELIMITER,
   PACKAGE_BUILD_NUMBER,
+  PACKAGE_ID_PREFIX,
+  PACKAGE_INSTALL_COMMAND,
   PACKAGE_VERSION_CREATE_COMMAND,
   PACKAGE_VERSION_ID_PREFIX, 
   PACKAGE_VERSION_INCREMENT,
@@ -25,22 +28,31 @@ let sfdxProjectJSON = {};
 async function setupScheduledJob() {
   let pullRequestNumber = github.getOpenPullRequestDetails({}).number;
   let issueComments = github.getIssueComments(pullRequestNumber);
-  let mostRecentPackageComment;
+  let mostRecentPackageCommentBody;
   let mostRecentPackageCommentDate;
 
   for(let issueComment of issueComments) {
       let issueCommentDate = new Date(issueComment.createdDate);
-      if(issueComment.body.startsWith(COMMENT_PREFIX) && (!mostRecentPackageComment || (mostRecentPackageCommentDate > issueCommentDate))) {
-          mostRecentPackageComment = issueComment;
+      let issueCommentBody = JSON.parse(issueComment.body);
+
+      if(
+        ('packagesToUpdate' in issueCommentBody) && 
+        ('updatedPackages' in issueCommentBody) && 
+        (!mostRecentPackageCommentBody || (mostRecentPackageCommentDate > issueCommentDate))
+        ) {
+          mostRecentPackageCommentBody = issueCommentBody;
           mostRecentPackageCommentDate = new Date(issueComment.createdDate);
       }
   }
 
-  let packagesToUpdate = mostRecentPackageComment.body.slice(COMMENT_PREFIX.length + 1);
-  await orchestrate(packagesToUpdate);
+  await orchestrate({
+    sortedPackagesToUpdate: mostRecentPackageCommentBody.packagesToUpdate,
+    pullRequestNumber: mostRecentPackageCommentBody.pullRequestNumber,
+    updatedPackages: mostRecentPackageCommentBody.updatedPackages
+  });
 }
 
-async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
+async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPackages}) {
   await cloneRepo(pullRequestNumber);
   process.stdout.write('Repo cloned\n');
   
@@ -52,43 +64,21 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
 
-  let packagesNotUpdated = [];
-  let query;
-  for(let packageToUpdate of sortedPackagesToUpdateArray) {
-    let stdout;
-    let stderr;
-    
-    if(packageLimit > 0) {
-      query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
-      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
-      let mostRecentPackage = JSON.parse(stdout).result.records[0];
-      let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}.${mostRecentPackage.PatchVersion}.${PACKAGE_BUILD_NUMBER}`;
-      let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}`;
-      
-      process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
-      ({stdout, stderr} = await exec(`${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`));
-      if(stderr) {
-        error.fatal('orchestrate()', stderr);
-      }
-
-      process.stdout.write(`Releasing package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
-      let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
-      ({stdout, stderr} = await exec(`${PACKAGE_VERSION_PROMOTE_COMMAND} -p ${subscriberPackageVersionId} -n --json`));
-      if(stderr) {
-        error.fatal('orchestrate()', stderr);
-      }
-
-      await updatePackageJSON(packageToUpdate, newPackageVersionNumber);
-      packageLimit--;
-    } else {
-      packagesNotUpdated.push(packageToUpdate);
-    }
+  if(!updatedPackages) {
+    updatedPackages = {};
   }
+  let packagesNotUpdated = [];
+  ({updatedPackages, packagesNotUpdated} = await updatePackages(sortedPackagesToUpdateArray, updatedPackages));
 
   if(packagesNotUpdated.length > 0) {
     console.log('in if');
     try {
-    github.commentOnPullRequest(pullRequestNumber, `${COMMENT_PREFIX}${packagesNotUpdated.join(' ')}`);
+      let pullRequestComment = {
+        pullRequestNumber,
+        updatedPackages,
+        packagesNotUpdated
+      };
+    github.commentOnPullRequest(pullRequestNumber, pullRequestComment);
     await heroku.scaleClockDyno(1);
     } catch(err) {
       console.error(err);
@@ -96,11 +86,31 @@ async function orchestrate({sortedPackagesToUpdate, pullRequestNumber}) {
   } else {
     console.log('in else');
     try {
+      await installPackages(updatedPackages);
     await github.mergeOpenPullRequest(pullRequestNumber);
+      await pushUpdatedPackageJSON(updatedPackages);
     await heroku.scaleClockDyno(0);
     } catch(err) {
       console.error(err);
     }
+  }
+}
+
+async function cloneRepo(pullRequestNumber) {
+  let pullRequest = await github.getOpenPullRequestDetails({pullRequestNumber});
+  let stderr;
+
+  ({_, stderr} = await exec(
+    `${GIT_CLONE_COMMAND} -q https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`
+  ));
+  if(stderr) {
+    error.fatal('cloneRepo()', stderr);
+  }
+
+  try {
+    process.chdir(process.env.REPOSITORY_NAME);
+  } catch(err) {
+    error.fatal('cloneRepo()', err);
   }
 }
 
@@ -118,21 +128,73 @@ function parseSFDXProjectJSON() {
   }
 }
 
-async function cloneRepo(pullRequestNumber) {
-  let pullRequest = await github.getOpenPullRequestDetails({pullRequestNumber});
-  let stderr;
+async function updatePackages(sortedPackagesToUpdateArray, updatedPackages) {
+  let packagesNotUpdated = [];
+  let query;
+  for(let packageToUpdate of sortedPackagesToUpdateArray) {
+    let stdout;
+    let stderr;
+    
+    if(packageLimit > 0) {
+      query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
+      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
+      let mostRecentPackage = JSON.parse(stdout).result.records[0];
+      let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}.${mostRecentPackage.PatchVersion}.${PACKAGE_BUILD_NUMBER}`;
+      let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}`;
+      
+      process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
+      ({stdout, stderr} = await exec(
+        `${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`
+      ));
+      if(stderr) {
+        error.fatal('updatePackages()', stderr);
+      }
 
-  ({_, stderr} = await exec(
-    `git clone -q https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@${process.env.REPOSITORY_URL} -b ${pullRequest.head.ref}`
-  ));
-  if(stderr) {
-    error.fatal('cloneRepo()', stderr);
+      process.stdout.write(`Releasing package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
+      let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
+      ({stdout, stderr} = await exec(`${PACKAGE_VERSION_PROMOTE_COMMAND} -p ${subscriberPackageVersionId} -n --json`));
+      if(stderr) {
+        error.fatal('updatePackages()', stderr);
+      }
+      updatedPackages[`${packageToUpdate}@${newPackageVersionNumber}`] = subscriberPackageVersionId;
+
+      await updatePackageJSON(packageToUpdate, newPackageVersionNumber);
+      packageLimit--;
+    } else {
+      packagesNotUpdated.push(packageToUpdate);
+    }
   }
+  return {packagesNotUpdated, updatedPackages};
+}
 
-  try {
-    process.chdir(process.env.REPOSITORY_NAME);
-  } catch(err) {
-    error.fatal('cloneRepo()', err);
+async function installPackages(updatedPackages) {
+  for(let updatedPackageAlias in updatedPackages) {
+    let {stderr} = await exec(
+      `${PACKAGE_INSTALL_COMMAND} -p ${updatedPackages[updatedPackageAlias]} -u ${process.env.HUB_ALIAS} -w ${process.env.WAIT_TIME} -r --json`
+    );
+    if(stderr) {
+      error.fatal('installPackages()', stderr);
+    }
+  }
+}
+
+async function pushUpdatedPackageJSON(updatedPackages) {
+  let stderr;
+  ({stderr} = await exec(`${GIT_CHECKOUT_COMMAND} main`));
+  if(stderr) {
+    error.fatal('pushUpdatedPackageJSON()', stderr);
+  }
+  for(let updatedPackageAlias in updatedPackages) {
+    sfdxProjectJSON.packageAliases[updatedPackageAlias] = updatePackages[updatedPackageAlias];
+  }
+  fs.writeFileSync(SFDX_PROJECT_JSON_FILENAME, JSON.stringify(sfdxProjectJSON, null, 2));
+  ({stderr} = await exec(`${GIT_COMMIT_COMMAND}`));
+  if(stderr) {
+    error.fatal('pushUpdatedPackageJSON()', stderr);
+  }
+  ({stderr} = await exec(GIT_PUSH_COMMAND));
+  if(stderr) {
+    error.fatal('pushUpdatedPackageJSON()', stderr);
   }
 }
 
