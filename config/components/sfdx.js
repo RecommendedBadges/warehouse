@@ -1,4 +1,5 @@
 const CLI_SERVICE_AGREEMENT = 'You acknowledge and agree that the CLI tool may collect usage information, user environment, and crash reports for the purposes of providing services or functions that are relevant to use of the CLI tool and product improvements.';
+const FORCE_IGNORE_FILENAME = '.forceignore'
 const PACKAGE_ALIAS_DELIMITER = '@';
 const PACKAGE_BUILD_NUMBER = 1;
 const PACKAGE_ID_PREFIX = '0Ho';

@@ -2,7 +2,8 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
 
-const { 
+const {
+  FORCE_IGNORE_FILENAME,
   GIT_CHECKOUT_COMMAND,
   GIT_CLONE_COMMAND,
   GIT_COMMIT_COMMAND,
@@ -125,6 +126,7 @@ function parseSFDXProjectJSON() {
 }
 
 async function updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages) {
+  updateForceIgnore();
   let packagesNotUpdated = [];
   let query;
   for(let packageToUpdate of sortedPackagesToUpdateArray) {
@@ -195,6 +197,22 @@ async function pushUpdatedPackageJSON(updatedPackages) {
   if(stderr) {
     error.fatal('pushUpdatedPackageJSON()', stderr);
   }
+}
+
+function updateForceIgnore() {
+  let sourceDirectories = [];
+  for(let packageDirectory of sfdxProjectJSON.packageDirectories) {
+      sourceDirectories.push(packageDirectory.path);
+  }
+
+  let forceIgnore = fs.readFileSync(FORCE_IGNORE_FILENAME, {encoding: 'utf8'});
+  let forceIgnoreLines = forceIgnore.split('\n');
+  for(let i in forceIgnoreLines) {
+      if(sourceDirectories.includes(forceIgnoreLines[i]) && (forceIgnoreLines[i].indexOf('#') == -1)) {
+          forceIgnoreLines[i] = '#' + forceIgnoreLines[i];
+      }
+  }
+  fs.writeFileSync(FORCE_IGNORE_FILENAME, forceIgnoreLines.join('\n'));
 }
 
 async function updatePackageJSON(packageName, fullPackageNumber) {
