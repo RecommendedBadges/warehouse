@@ -9,6 +9,7 @@ const SFDX_PROJECT_JSON_FILENAME = './sfdx-project.json';
 
 const AUTH_JWT_GRANT_COMMAND = 'sfdx force:auth:jwt:grant';
 const LIMITS_API_DISPLAY_COMMAND = 'sfdx force:limits:api:display';
+const PACKAGE_INSTALL_COMMAND = 'sfdx force:package:beta:install';
 const PACKAGE_VERSION_CREATE_COMMAND = 'sfdx force:package:beta:version:create';
 const PACKAGE_VERSION_PROMOTE_COMMAND = 'sfdx force:package:beta:version:promote';
 const SOQL_QUERY_COMMAND = 'sfdx force:data:soql:query';
@@ -20,6 +21,7 @@ module.exports = {
     PACKAGE_ALIAS_DELIMITER,
     PACKAGE_BUILD_NUMBER,
     PACKAGE_ID_PREFIX,
+    PACKAGE_INSTALL_COMMAND,
     PACKAGE_LIMIT_NAME,
     PACKAGE_VERSION_CREATE_COMMAND,
     PACKAGE_VERSION_ID_PREFIX,
