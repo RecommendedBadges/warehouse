@@ -52,7 +52,7 @@ async function setupScheduledJob() {
   });
 }
 
-async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPackages}) {
+async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPackages = {}}) {
   await cloneRepo(pullRequestNumber);
   process.stdout.write('Repo cloned\n');
   
@@ -63,10 +63,6 @@ async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPa
   process.stdout.write(`Remaining package version creation limit is ${packageLimit}\n`);
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
-
-  if(!updatedPackages) {
-    updatedPackages = {};
-  }
   let packagesNotUpdated = [];
   ({updatedPackages, packagesNotUpdated} = await updatePackages(sortedPackagesToUpdateArray, updatedPackages));
 
