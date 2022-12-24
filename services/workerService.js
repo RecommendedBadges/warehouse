@@ -138,6 +138,7 @@ async function updatePackages(packageLimit, sortedPackagesToUpdateArray, updated
       let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}.${mostRecentPackage.PatchVersion}.${PACKAGE_BUILD_NUMBER}`;
       let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}`;
       
+      try {
       process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
       ({stdout, stderr} = await exec(
         `${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`
@@ -145,7 +146,9 @@ async function updatePackages(packageLimit, sortedPackagesToUpdateArray, updated
       if(stderr) {
         error.fatal('updatePackages()', stderr);
       }
-
+    }catch(err) {
+      console.log(err);
+    }
       process.stdout.write(`Releasing package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
       let subscriberPackageVersionId = JSON.parse(stdout).result.SubscriberPackageVersionId;
       ({stdout, stderr} = await exec(`${PACKAGE_VERSION_PROMOTE_COMMAND} -p ${subscriberPackageVersionId} -n --json`));
