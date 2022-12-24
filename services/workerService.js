@@ -148,6 +148,7 @@ async function updatePackages(packageLimit, sortedPackagesToUpdateArray, updated
       if(stderr) {
         error.fatal('updatePackages()', stderr);
       }
+      process.stdout.write(stdout);
     }catch(err) {
       console.log(err);
     }
@@ -200,7 +201,6 @@ async function pushUpdatedPackageJSON(updatedPackages) {
 }
 
 function updateForceIgnore() {
-  try{
   let sourceDirectories = [];
   for(let packageDirectory of sfdxProjectJSON.packageDirectories) {
       sourceDirectories.push(packageDirectory.path);
@@ -215,9 +215,6 @@ function updateForceIgnore() {
       }
   }
   fs.writeFileSync(FORCE_IGNORE_FILENAME, forceIgnoreLines.join('\n'));
-} catch(err) {
-  console.log(err);
-}
 }
 
 async function updatePackageJSON(packageName, fullPackageNumber) {
