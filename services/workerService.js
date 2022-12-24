@@ -64,7 +64,7 @@ async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPa
   process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
   let packagesNotUpdated = [];
-  ({updatedPackages, packagesNotUpdated} = await updatePackages(sortedPackagesToUpdateArray, updatedPackages));
+  ({updatedPackages, packagesNotUpdated} = await updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages));
 
   if(packagesNotUpdated.length > 0) {
     console.log('in if');
@@ -124,7 +124,7 @@ function parseSFDXProjectJSON() {
   }
 }
 
-async function updatePackages(sortedPackagesToUpdateArray, updatedPackages) {
+async function updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages) {
   let packagesNotUpdated = [];
   let query;
   for(let packageToUpdate of sortedPackagesToUpdateArray) {
@@ -132,7 +132,6 @@ async function updatePackages(sortedPackagesToUpdateArray, updatedPackages) {
     let stderr;
     
     if(packageLimit > 0) {
-      console.log('in if');
       query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
       ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
       let mostRecentPackage = JSON.parse(stdout).result.records[0];
