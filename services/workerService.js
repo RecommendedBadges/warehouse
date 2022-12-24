@@ -132,6 +132,7 @@ async function updatePackages(sortedPackagesToUpdateArray, updatedPackages) {
     let stderr;
     
     if(packageLimit > 0) {
+      console.log('in if');
       query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
       ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
       let mostRecentPackage = JSON.parse(stdout).result.records[0];
