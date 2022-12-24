@@ -207,6 +207,7 @@ function updateForceIgnore() {
   }
 
   let forceIgnore = fs.readFileSync(FORCE_IGNORE_FILENAME, {encoding: 'utf8'});
+  console.log('read file');
   let forceIgnoreLines = forceIgnore.split('\n');
   for(let i in forceIgnoreLines) {
       if(sourceDirectories.includes(forceIgnoreLines[i]) && (forceIgnoreLines[i].indexOf('#') == -1)) {
