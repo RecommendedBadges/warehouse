@@ -2,6 +2,7 @@ const callout = require('./callout.js');
 const config = require('../config');
 
 async function commentOnPullRequest(pullRequestNumber, commentBody) {
+    console.log(commentBody);
     callout.post('github', `/issues/${pullRequestNumber}/comments`, commentBody);
 }
 
