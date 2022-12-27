@@ -54,42 +54,46 @@ async function setupScheduledJob() {
 }
 
 async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPackages = {}}) {
-  await cloneRepo(pullRequestNumber);
-  process.stdout.write('Repo cloned\n');
-  
-  parseSFDXProjectJSON();
-  await sfdx.authorize();
-  let packageLimit = await sfdx.getRemainingPackageNumber();
-  let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
-  process.stdout.write(`Remaining package version creation limit is ${packageLimit}\n`);
-  process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
+  try {
+    await cloneRepo(pullRequestNumber);
+    process.stdout.write('Repo cloned\n');
+    
+    parseSFDXProjectJSON();
+    await sfdx.authorize();
+    let packageLimit = await sfdx.getRemainingPackageNumber();
+    let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
+    process.stdout.write(`Remaining package version creation limit is ${packageLimit}\n`);
+    process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
 
-  let packagesNotUpdated = [];
-  ({updatedPackages, packagesNotUpdated} = await updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages));
+    let packagesNotUpdated = [];
+    ({updatedPackages, packagesNotUpdated} = await updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages));
 
-  if(packagesNotUpdated.length > 0) {
-    console.log('in if');
-    try {
-      let pullRequestComment = {
-        pullRequestNumber,
-        updatedPackages,
-        packagesNotUpdated
-      };
-    github.commentOnPullRequest(pullRequestNumber, pullRequestComment);
-    await heroku.scaleClockDyno(1);
-    } catch(err) {
-      console.error(err);
+    if(packagesNotUpdated.length > 0) {
+      console.log('in if');
+      try {
+        let pullRequestComment = {
+          pullRequestNumber,
+          updatedPackages,
+          packagesNotUpdated
+        };
+      github.commentOnPullRequest(pullRequestNumber, pullRequestComment);
+      await heroku.scaleClockDyno(1);
+      } catch(err) {
+        console.error(err);
+      }
+    } else {
+      console.log('in else');
+      try {
+        await installPackages(updatedPackages);
+      await github.mergeOpenPullRequest(pullRequestNumber);
+        await pushUpdatedPackageJSON(updatedPackages);
+      await heroku.scaleClockDyno(0);
+      } catch(err) {
+        console.error(err);
+      }
     }
-  } else {
-    console.log('in else');
-    try {
-      await installPackages(updatedPackages);
-    await github.mergeOpenPullRequest(pullRequestNumber);
-      await pushUpdatedPackageJSON(updatedPackages);
-    await heroku.scaleClockDyno(0);
-    } catch(err) {
-      console.error(err);
-    }
+  } catch(err) {
+    error.fatal('orchestrate()', err);
   }
 }
 
