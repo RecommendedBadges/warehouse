@@ -82,10 +82,9 @@ async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPa
         console.error(err);
       }
     } else {
-      console.log('in else');
-      try {
-        await installPackages(updatedPackages);
+      await installPackages(updatedPackages);
       await github.mergeOpenPullRequest(pullRequestNumber);
+      try {
         await pushUpdatedPackageJSON(updatedPackages);
       await heroku.scaleClockDyno(0);
       } catch(err) {
