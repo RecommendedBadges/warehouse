@@ -14,7 +14,7 @@ async function createJob(req, res) {
     
     let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
     if(pullRequestDetails.base.repo.svn_url.includes(process.env.REPOSITORY_URL)) {
-        let packagesToUpdate = await getLastJobArtifacts(req.body.jobNumber);
+        let packagesToUpdate = req.body.sortedPackagesToUpdate; //await getLastJobArtifacts(req.body.jobNumber);
 
         let jobId = await queueJob({
             packagesToUpdate,
