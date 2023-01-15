@@ -62,12 +62,11 @@ async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPa
     parseSFDXProjectJSON();
     await sfdx.authorize();
     let packageLimit = await sfdx.getRemainingPackageNumber();
-    let sortedPackagesToUpdateArray = sortedPackagesToUpdate.split('\n');
     process.stdout.write(`Remaining package version creation limit is ${packageLimit}\n`);
-    process.stdout.write(`List of packages to update is ${sortedPackagesToUpdateArray.join(', ')}\n`);
+    process.stdout.write(`List of packages to update is ${sortedPackagesToUpdate.join(', ')}\n`);
 
     let packagesNotUpdated = [];
-    ({updatedPackages, packagesNotUpdated} = await updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages));
+    ({updatedPackages, packagesNotUpdated} = await updatePackages(packageLimit, sortedPackagesToUpdate, updatedPackages));
 
     if(packagesNotUpdated.length > 0) {
       console.log('in if');
@@ -136,11 +135,11 @@ function parseSFDXProjectJSON() {
   }
 }
 
-async function updatePackages(packageLimit, sortedPackagesToUpdateArray, updatedPackages) {
+async function updatePackages(packageLimit, sortedPackagesToUpdate, updatedPackages) {
   updateForceIgnore();
   let packagesNotUpdated = [];
   let query;
-  for(let packageToUpdate of sortedPackagesToUpdateArray) {
+  for(let packageToUpdate of sortedPackagesToUpdate) {
     let stdout;
     let stderr;
     
