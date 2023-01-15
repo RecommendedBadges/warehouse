@@ -54,7 +54,7 @@ async function getLastBuildWorkflowID(pipelineID) {
     return workflowID;
 }
 
-async function getLastJobArtifacts(workflowID) {
+async function getLastJobArtifacts(workflowID = 'c6ebe1c0-7121-4e26-b8f5-7ef32bd54d59') {
     let data = await callout.get({
         site: CIRCLECI,
         endpoint: `/workflow/${workflowID}/job`
