@@ -7,6 +7,7 @@ async function get({site, endpoint, fullUrl}) {
     try {
         console.log(site);
         console.log(endpoint);
+        console.log(fullUrl);
         const res = await axios.get(
             fullUrl ? fullUrl : `${common.API_BASES[site]}${endpoint}`,
             {
