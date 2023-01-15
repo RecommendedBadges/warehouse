@@ -16,7 +16,7 @@ async function createJob(req, res) {
     if(pullRequestDetails.base.repo.svn_url.includes(process.env.REPOSITORY_URL)) {
         //let lastPipelineID = await getLastPipelineID();
         //let lastBuildWorkflowID = await getLastBuildWorkflowID(lastPipelineID);
-        let packagesToUpdate = await getLastJobArtifacts(lastBuildWorkflowID);
+        let packagesToUpdate = await getLastJobArtifacts(null);
 
         let jobId = await queueJob({
             packagesToUpdate,
