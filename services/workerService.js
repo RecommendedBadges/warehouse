@@ -7,6 +7,7 @@ const {
   GIT_CHECKOUT_COMMAND,
   GIT_CLONE_COMMAND,
   GIT_COMMIT_COMMAND,
+  GIT_PULL_COMMAND,
   GIT_PUSH_COMMAND,
   PACKAGE_ALIAS_DELIMITER,
   PACKAGE_BUILD_NUMBER,
@@ -184,6 +185,9 @@ async function pushUpdatedPackageJSON(updatedPackages) {
   if(stderr) {
     error.fatal('pushUpdatedPackageJSON()', stderr);
   }
+
+  ({stderr} = await exec(`${GIT_PULL_COMMAND}`))
+
   for(let updatedPackageAlias in updatedPackages) {
     sfdxProjectJSON.packageAliases[updatedPackageAlias] = updatePackages[updatedPackageAlias];
   }
