@@ -14,8 +14,8 @@ async function createJob(req, res) {
     
     let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
     if(pullRequestDetails.base.repo.svn_url.includes(process.env.REPOSITORY_URL)) {
-        let lastPipelineID = await getLastPipelineID();
-        let lastBuildWorkflowID = await getLastBuildWorkflowID(lastPipelineID);
+        //let lastPipelineID = await getLastPipelineID();
+        //let lastBuildWorkflowID = await getLastBuildWorkflowID(lastPipelineID);
         let packagesToUpdate = await getLastJobArtifacts(lastBuildWorkflowID);
 
         let jobId = await queueJob({
@@ -61,7 +61,8 @@ async function getLastJobArtifacts(workflowID) {
     });
     let projectSlug = data.items[0].project_slug;
     let lastJobNumber = data.items[0].job_number;
-
+    console.log(projectSlug);
+    throw err;
     data = await callout.get({
         site: CIRCLECI,
         endpoint: `/project/${projectSlug}/${lastJobNumber}/artifacts`
