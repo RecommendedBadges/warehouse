@@ -5,6 +5,8 @@ const { fatal } = require('./error.js');
 
 async function get({site, endpoint, fullUrl}) {
     try {
+        console.log(site);
+        console.log(endpoint);
         const res = await axios.get(
             fullUrl ? fullUrl : `${common.API_BASES[site]}${endpoint}`,
             {
