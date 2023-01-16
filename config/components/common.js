@@ -1,8 +1,4 @@
 const REQUEST_HEADERS = {
-    circleci: {
-        'Accept': 'application/json',
-        'Circle-Token': process.env.CIRCLE_TOKEN
-    },
     github: {
         'Accept': 'application/vnd.github+json',
         'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
@@ -14,7 +10,6 @@ const REQUEST_HEADERS = {
 };
 
 const API_BASES = {
-    circleci: process.env.CIRCLE_API_BASE,
     github: process.env.GITHUB_API_BASE,
     heroku: process.env.WAREHOUSE_API_BASE
 };
