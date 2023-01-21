@@ -14,9 +14,7 @@ const API_BASES = {
     heroku: process.env.WAREHOUSE_API_BASE
 };
 
-const config = {
+module.exports = {
     API_BASES,
-    REQUEST_HEADERS
+    REQUEST_HEADERS 
 };
-
-module.exports = config;

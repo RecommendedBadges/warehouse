@@ -1,5 +1,5 @@
 const callout = require('./callout.js');
-const config = require('../config');
+const { BASE_BRANCH } = require('../config');
 
 async function commentOnPullRequest(pullRequestNumber, commentBody) {
     console.log(commentBody);
@@ -21,7 +21,7 @@ async function getOpenPullRequestDetails(parameters) {
     });
     for(let pullRequest of pullRequests) {
         if(
-            (pullRequest.base.ref === config.BASE_BRANCH) 
+            (pullRequest.base.ref === BASE_BRANCH) 
             && ((parameters.pullRequestNumber && (pullRequest.number == parameters.pullRequestNumber)) || !parameters.pullRequestNumber)
         ) {
             return pullRequest;
