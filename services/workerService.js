@@ -177,7 +177,7 @@ async function updatePackages(packageLimit, sortedPackagesToUpdate, updatedPacka
 async function installPackages(updatedPackages) {
   for(let updatedPackageAlias in updatedPackages) {
     let {stderr} = await exec(
-      `${PACKAGE_INSTALL_COMMAND} -p ${updatedPackages[updatedPackageAlias]} -u ${process.env.HUB_ALIAS} -w ${process.env.WAIT_TIME} -r --json`
+      `${PACKAGE_INSTALL_COMMAND} -p ${updatedPackages[updatedPackageAlias]} -o ${process.env.HUB_ALIAS} -w ${process.env.WAIT_TIME} -r --json`
     );
     if(stderr) {
       error.fatal('installPackages()', stderr);
