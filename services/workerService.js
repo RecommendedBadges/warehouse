@@ -152,7 +152,7 @@ async function updatePackages(packageLimit, sortedPackagesToUpdate, updatedPacka
 
       process.stdout.write(`Creating package ${packageToUpdate} version ${newPackageVersionNumber}\n`);
       ({stdout, stderr} = await exec(
-        `${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} --json`
+        `${PACKAGE_VERSION_CREATE_COMMAND} -p ${packageToUpdate} -n ${newPackageVersionNumber} -a ${newPackageVersionName} -x -c -w ${process.env.WAIT_TIME} -v ${process.env.HUB_ALIAS} --json`
       ));
       if(stderr) {
         error.fatal('updatePackages()', stderr);
