@@ -71,11 +71,8 @@ async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPa
     if(packagesNotUpdated.length > 0) {
       console.log('in if');
       try {
-        let pullRequestComment = {
-          pullRequestNumber,
-          updatedPackages,
-          packagesNotUpdated
-        };
+        let pullRequestComment = `${pullRequestNumber}\nUpdated Packages:\n${updatedPackages.join(', ')}\nPackages Not Updated:\n${packagesNotUpdated.join(', ')}`;
+        console.log(pullRequestComment);
       github.commentOnPullRequest(pullRequestNumber, pullRequestComment);
       await heroku.scaleClockDyno(1);
       } catch(err) {
