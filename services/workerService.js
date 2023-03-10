@@ -142,7 +142,7 @@ async function updatePackages(packageLimit, sortedPackagesToUpdate, updatedPacka
     
     if(packageLimit > 0) {
       query = `SELECT MajorVersion, MinorVersion, PatchVersion FROM Package2Version WHERE Package2.Name='${packageToUpdate}' ORDER BY MajorVersion DESC, MinorVersion DESC, PatchVersion DESC`;
-      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`))
+      ({stdout, stderr} = await exec(`${SOQL_QUERY_COMMAND} -q "${query}" -t -o ${process.env.HUB_ALIAS} --json`))
       let mostRecentPackage = JSON.parse(stdout).result.records[0];
       let newPackageVersionNumber = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}.${mostRecentPackage.PatchVersion}.${PACKAGE_BUILD_NUMBER}`;
       let newPackageVersionName = `${mostRecentPackage.MajorVersion}.${mostRecentPackage.MinorVersion + PACKAGE_VERSION_INCREMENT}`;
@@ -251,7 +251,7 @@ async function getPackageNameFromDependency(dependentPackage) {
   } else if(dependentPackage.package.startsWith(PACKAGE_VERSION_ID_PREFIX)) {
     let query = `SELECT Package2Id FROM Package2Version WHERE SubscriberPackageVersionId='${dependentPackage.package}'`
     const {stderr, stdout} = await exec(
-      `${SOQL_QUERY_COMMAND} -q "${query}" -t -u ${process.env.HUB_ALIAS} --json`
+      `${SOQL_QUERY_COMMAND} -q "${query}" -t -o ${process.env.HUB_ALIAS} --json`
     );
     
     if(stderr) {

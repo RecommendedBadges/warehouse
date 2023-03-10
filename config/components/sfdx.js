@@ -8,12 +8,12 @@ const PACKAGE_VERSION_ID_PREFIX = '04t';
 const PACKAGE_VERSION_INCREMENT = 1;
 const SFDX_PROJECT_JSON_FILENAME = './sfdx-project.json';
 
-const AUTH_JWT_GRANT_COMMAND = 'sfdx force:auth:jwt:grant';
-const LIMITS_API_DISPLAY_COMMAND = 'sfdx force:limits:api:display';
-const PACKAGE_INSTALL_COMMAND = 'sfdx package install';
-const PACKAGE_VERSION_CREATE_COMMAND = 'sfdx package version create';
-const PACKAGE_VERSION_PROMOTE_COMMAND = 'sfdx package version promote';
-const SOQL_QUERY_COMMAND = 'sfdx force:data:soql:query';
+const AUTH_JWT_GRANT_COMMAND = 'sf org login jwt';
+const LIMITS_API_DISPLAY_COMMAND = 'sf limits api display';
+const PACKAGE_INSTALL_COMMAND = 'sf package install';
+const PACKAGE_VERSION_CREATE_COMMAND = 'sf package version create';
+const PACKAGE_VERSION_PROMOTE_COMMAND = 'sf package version promote';
+const SOQL_QUERY_COMMAND = 'sf data query';
 
 module.exports = {
     AUTH_JWT_GRANT_COMMAND,

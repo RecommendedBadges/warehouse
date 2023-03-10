@@ -15,7 +15,7 @@ async function authorize() {
     }
 
     ({stderr} = await exec(
-        `${AUTH_JWT_GRANT_COMMAND} -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -u $HUB_USERNAME -d -a $HUB_ALIAS -p`
+        `${AUTH_JWT_GRANT_COMMAND} -i ${process.env.HUB_CONSUMER_KEY} -f assets/server.key -o $HUB_USERNAME -d -a $HUB_ALIAS`
     ));
     if(stderr && !stderr.includes(CLI_SERVICE_AGREEMENT)) {
         fatal('authorize()', stderr);
@@ -23,7 +23,7 @@ async function authorize() {
 }
 
 async function getRemainingPackageNumber() {
-    const {stdout, stderr} = await exec(`${LIMITS_API_DISPLAY_COMMAND} -u ${process.env.HUB_ALIAS} --json`);
+    const {stdout, stderr} = await exec(`${LIMITS_API_DISPLAY_COMMAND} -o ${process.env.HUB_ALIAS} --json`);
     if(stderr) {
         fatal('getPackageLimit()', stderr);
     }
