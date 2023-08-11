@@ -7,7 +7,7 @@
   "dependencies": {
     "@salesforce/cli": "^2.3.8",
     "axios": "^1.4.0",
-    "bull": "^4.11.2",
+    "bull": "^4.11.3",
     "express": "^4.16.4",
     "foreman": "^3.0.1",
     "throng": "^5.0.0"
