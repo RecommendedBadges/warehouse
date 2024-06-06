@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const Queue = require('bull');
 
-let workQueue = new Queue('work', process.env.REDIS_TLS_URL);
+let workQueue = new Queue('work', process.env.REDIS_URL);
 
 async function queueJob({packagesToUpdate, pullRequestNumber}) {
     console.log('In queueJob');
