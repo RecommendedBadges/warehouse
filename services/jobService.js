@@ -5,7 +5,6 @@ const Queue = require('bull');
 let workQueue = new Queue('work', process.env.REDIS_URL);
 
 async function queueJob({packagesToUpdate, pullRequestNumber}) {
-    console.log('In queueJob');
     let job = await workQueue.add(
         'kickoff',
         {
@@ -13,7 +12,6 @@ async function queueJob({packagesToUpdate, pullRequestNumber}) {
             pullRequestNumber: pullRequestNumber,
         }
     );
-    console.log('queued kickoff job');
     process.stdout.write('Queued kickoff job');
     return job.id;
 }

@@ -9,10 +9,10 @@ function start() {
   // Connect to the named work queue
   let workQueue = new Queue('work', process.env.REDIS_URL);
   
-  console.log('Worker started.');
+  process.stdout.write('Worker started.\n');
 
   workQueue.process('kickoff', async (job) => {
-    console.log('Kickoff job received');
+    process.stdout.write('Kickoff job received\n');
     await orchestrate(job.data);
   });
 

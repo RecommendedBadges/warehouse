@@ -4,17 +4,14 @@ const { queueJob } = require('../services');
 const HEADER_PARAMETER_NAME = 'Token';
 
 async function createJob(req, res) {
-    console.log('in createJob');
     if(req.get(HEADER_PARAMETER_NAME) != process.env.GITHUB_SECRET) {
         res.status(403).send({
           body: 'Authorization failed'
         });
         return;
     } 
-    
-    console.log('before pull request details');
+
     let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
-    console.log('after pull request details');
     if(pullRequestDetails.base.repo.svn_url.includes(process.env.REPOSITORY_URL)) {
         let packagesToUpdate = req.body.sortedPackagesToUpdate;
         let jobId = await queueJob({
