@@ -69,7 +69,6 @@ async function orchestrate({pullRequestNumber, sortedPackagesToUpdate, updatedPa
     ({updatedPackages, packagesNotUpdated} = await updatePackages(packageLimit, sortedPackagesToUpdate, updatedPackages));
 
     if(packagesNotUpdated.length > 0) {
-      console.log('in if');
       try {
         let pullRequestComment = `${pullRequestNumber}\nUpdated Packages:\n${Object.entries(updatedPackages)}\nPackages Not Updated:\n${packagesNotUpdated.join(', ')}`;
         console.log(pullRequestComment);
