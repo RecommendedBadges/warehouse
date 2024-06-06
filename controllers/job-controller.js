@@ -12,9 +12,9 @@ async function createJob(req, res) {
         return;
     } 
     
-    process.stdout.write('before pull request details');
+    console.log('before pull request details');
     let pullRequestDetails = await github.getOpenPullRequestDetails({pullRequestNumber: req.body.pullRequestNumber});
-    process.stdout.write('after pull request details');
+    console.log('after pull request details');
     if(pullRequestDetails.base.repo.svn_url.includes(process.env.REPOSITORY_URL)) {
         let packagesToUpdate = req.body.sortedPackagesToUpdate;
         let jobId = await queueJob({
