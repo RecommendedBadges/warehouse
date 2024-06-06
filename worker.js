@@ -7,7 +7,7 @@ let workers = process.env.WEB_CONCURRENCY || 1;
 
 function start() {
   // Connect to the named work queue
-  let workQueue = new Queue('work', process.env.REDIS_URL);
+  let workQueue = new Queue('work', process.env.REDIS_TLS_URL);
   
   console.log('Worker started.');
 
