@@ -4,6 +4,7 @@ const { queueJob } = require('../services');
 const HEADER_PARAMETER_NAME = 'Token';
 
 async function createJob(req, res) {
+    console.log('in createJob');
     if(req.get(HEADER_PARAMETER_NAME) != process.env.GITHUB_SECRET) {
         res.status(403).send({
           body: 'Authorization failed'
