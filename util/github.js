@@ -1,19 +1,6 @@
 const callout = require('./callout.js');
 const { BASE_BRANCH } = require('../config');
 
-async function commentOnPullRequest(pullRequestNumber, commentBody) {
-    console.log(commentBody);
-    callout.post('github', `/issues/${pullRequestNumber}/comments`, commentBody);
-}
-
-async function getIssueComments(issueNumber) {
-    let issueComments = await callout.get({
-        site: 'github',
-        endpoint: `/issues/${issueNumber}/comments`
-    });
-    return issueComments;
-}
-
 async function getOpenPullRequestDetails(parameters) {
     let pullRequests = await callout.get({
         site: 'github',
@@ -29,13 +16,6 @@ async function getOpenPullRequestDetails(parameters) {
     }
 }
 
-async function mergeOpenPullRequest(pullRequestNumber) {
-    await callout.put('github', `/pulls/${pullRequestNumber}/merge`, {});
-}
-
 module.exports = {
-    commentOnPullRequest,
-    getIssueComments,
-    getOpenPullRequestDetails,
-    mergeOpenPullRequest
+    getOpenPullRequestDetails
 };

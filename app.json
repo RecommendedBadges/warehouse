@@ -1,5 +1,7 @@
 {
+  "name": "Recommended Badges Warehouse",
   "addons": [
     "heroku-redis"
-  ]
+  ],
+  "warehouse": "https://github.com/RecommendedBadges/warehouse"
 }
