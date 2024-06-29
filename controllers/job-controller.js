@@ -22,12 +22,27 @@ async function createJob(req, res) {
             data: `Authorized. jobID: ${jobId}`
           });
     } else {
-        res.status(204).send({
-            data: 'Authorized.'
+        res.status(204).send();
+    }
+}
+
+async function scaleDownWarehouseWorker(req, res) {
+    if(req.get(HEADER_PARAMETER_NAME != process.env.WAREHOUSE_WORKER_TOKEN)) {
+        res.status(403).send({
+            body: 'Authorization failed'
         });
+        return;
+    } else {
+        res.status(200).send();
+        try {
+            heroku.scaleDyno(req.body.formationType, 0);
+        } catch(err) {
+            console.error(err);
+        }
     }
 }
 
 module.exports = {
-    createJob
+    createJob,
+    scaleDownWarehouseWorker
 };
