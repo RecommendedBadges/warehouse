@@ -1,5 +1,3 @@
 const jobController = require('./job-controller.js');
 
-module.exports = {
-    createJob: jobController.createJob
-};
+module.exports = Object.assign({}, jobController);

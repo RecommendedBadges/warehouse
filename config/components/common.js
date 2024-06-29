@@ -5,13 +5,13 @@ const REQUEST_HEADERS = {
     },
     heroku: {
         'Accept': 'application/vnd.heroku+json; version=3',
-        'Authorization': `Bearer ${process.env.WAREHOUSE_TOKEN}`
+        'Authorization': `Bearer ${process.env.WAREHOUSE_WORKER_TOKEN}`
     }
 };
 
 const API_BASES = {
     github: process.env.GITHUB_API_BASE,
-    heroku: process.env.WAREHOUSE_API_BASE
+    heroku: process.env.WAREHOUSE_WORKER_API_BASE
 };
 
 module.exports = {
