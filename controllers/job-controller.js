@@ -27,7 +27,7 @@ async function createJob(req, res) {
 }
 
 async function scaleDownWarehouseWorker(req, res) {
-    if(req.get(HEADER_PARAMETER_NAME != process.env.WAREHOUSE_WORKER_TOKEN)) {
+    if(req.get(HEADER_PARAMETER_NAME) != process.env.WAREHOUSE_WORKER_TOKEN) {
         res.status(403).send({
             body: 'Authorization failed'
         });

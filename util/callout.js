@@ -17,6 +17,22 @@ async function get({site, endpoint, fullUrl}) {
     }
 }
 
+async function patch(site, endpoint, body) {
+    try {
+        const res = await axios.patch(
+            `${API_BASES[site]}${endpoint}`,
+            body,
+            {
+                headers: REQUEST_HEADERS[site]
+            }
+        );
+        return res.data;
+    } catch(err) {
+        fatal('patch()', err.message);
+    }
+}
+
 module.exports = {
-    get
+    get,
+    patch
 };
