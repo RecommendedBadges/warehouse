@@ -6,7 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@salesforce/cli": "^2.87.0",
-    "axios": "^1.8.4",
+    "axios": "^1.9.0",
     "bull": "^4.16.5",
     "express": "^4.21.1",
     "foreman": "^3.0.1",
