@@ -5,7 +5,7 @@
   "main": "app.js",
   "license": "MIT",
   "dependencies": {
-    "@salesforce/cli": "^2.118.4",
+    "@salesforce/cli": "^2.118.5",
     "axios": "^1.13.2",
     "bull": "^4.16.5",
     "express": "^4.21.1",
